@@ -6,7 +6,10 @@ import {
     FcBiohazard,
     FcBullish,
     FcConferenceCall,
+    FcCustomerSupport,
+    FcList,
     FcOpenedFolder,
+    FcPackage,
     FcSelfServiceKiosk,
 } from "react-icons/fc";
 
@@ -20,27 +23,58 @@ function Sidebar() {
         },
         {
             name: "Point of Sales",
-            route: "profile.edit",
-            key: "profile",
+            route: "admin.pos",
+            key: "pos",
             icon: <FcSelfServiceKiosk className="text-blue-400 text-lg" />,
         },
+
+        {
+            name: "Product Management",
+            icon: <FcPackage className="text-blue-400 text-lg" />,
+            child: [
+                {
+                    name: "Products",
+                    route: "admin.products.index",
+                    key: "products",
+                    icon: <FcPackage className="text-blue-400 text-lg" />,
+                },
+                // {
+                //     name: "Stocks",
+                //     route: "profile.edit",
+                //     key: "profile",
+                //     icon: <FcOpenedFolder className="text-blue-400 text-lg" />,
+                // },
+                {
+                    name: "Categories",
+                    route: "admin.categories.index",
+                    key: "categories",
+                    icon: <FcList className="text-blue-400 text-lg" />,
+                },
+            ],
+        },
+
         {
             name: "Users Management",
-            route: "profile.edit",
-            key: "profile",
+            key: "users",
             icon: <FcConferenceCall className="text-blue-400 text-lg" />,
-        },
-        {
-            name: "Stocks Management",
-            route: "profile.edit",
-            key: "profile",
-            icon: <FcOpenedFolder className="text-blue-400 text-lg" />,
-        },
-        {
-            name: "Products",
-            route: "profile.edit",
-            key: "profile",
-            icon: <FcBiohazard className="text-blue-400 text-lg" />,
+            child: [
+                {
+                    name: "Users",
+                    route: "admin.users.index",
+                    key: "users",
+                    icon: (
+                        <FcConferenceCall className="text-blue-400 text-lg" />
+                    ),
+                },
+                {
+                    name: "Cashiers",
+                    route: "admin.users.index",
+                    key: "cashiers",
+                    icon: (
+                        <FcCustomerSupport className="text-blue-400 text-lg" />
+                    ),
+                },
+            ],
         },
     ];
 
@@ -60,7 +94,7 @@ function Sidebar() {
                         href="https://demos.creative-tim.com/argon-dashboard-tailwind/pages/dashboard.html"
                         target="_blank"
                     >
-                        <span className="ml-1 font-semibold transition-all duration-200 ease-nav-brand block">
+                        <span className="text-xl text-blue-500 font-semibold transition-all duration-200 ease-nav-brand block">
                             POSerize
                         </span>
 
@@ -72,15 +106,15 @@ function Sidebar() {
 
                 <hr className="h-px mb-3 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent dark:bg-gradient-to-r dark:from-transparent dark:via-white dark:to-transparent" />
 
-                <div className="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
+                <div className="items-center block w-auto max-h-screen h-sidenav grow basis-full">
                     <ul className="flex flex-col pl-0 mb-0">
-                        {menus.map((menu, key) => (
+                        {/* {menus.map((menu, key) => (
                             <li className="mt-0.5 w-full" key={key}>
                                 <NavLink
-                                    href={route(menu.route)}
+                                    href={menu.route && route(menu.route)}
                                     active={route().current(menu.key)}
                                 >
-                                    <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                                    <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
                                         {menu.icon}
                                     </div>
                                     <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">
@@ -88,47 +122,80 @@ function Sidebar() {
                                     </span>
                                 </NavLink>
                             </li>
+                        ))} */}
+                        {menus.map((menu, key) => (
+                            <>
+                                {menu.child ? (
+                                    <li class="w-full mt-4 mb-2">
+                                        <h6 class="pl-6 font-bold leading-tight uppercase dark:text-white text-xs  border-b pb-3">
+                                            {menu.name}
+                                        </h6>
+                                    </li>
+                                ) : (
+                                    <li className="mt-0.5 w-full" key={key}>
+                                        <NavLink
+                                            href={
+                                                menu.route && route(menu.route)
+                                            }
+                                            active={route()
+                                                .current()
+                                                .includes(menu.key)}
+                                        >
+                                            <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
+                                                {menu.icon}
+                                            </div>
+                                            <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">
+                                                {menu.name}
+                                            </span>
+                                        </NavLink>
+                                    </li>
+                                )}
+                                {/* {menu.child &&
+                                    menu.child.map((child, key) => (
+                                        <li className="mt-0.5 w-full">
+                                            <NavLink
+                                                href={
+                                                    child.route &&
+                                                    route(child.route)
+                                                }
+                                                active={route().current(key)}
+                                            >
+                                                <div className=" mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
+                                                    {child.icon}
+                                                </div>
+                                                <span className=" duration-300 opacity-100 pointer-events-none ease">
+                                                    {child.name}
+                                                </span>
+                                            </NavLink>
+                                        </li>
+                                    ))} */}
+                                {menu.child &&
+                                    menu.child.map((child, childKey) => (
+                                        <li
+                                            className="mt-0.5 w-full"
+                                            key={childKey}
+                                        >
+                                            <NavLink
+                                                href={
+                                                    child.route &&
+                                                    route(child.route)
+                                                }
+                                                active={route()
+                                                    .current()
+                                                    .includes(child.key)} // Use child.key here
+                                            >
+                                                <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
+                                                    {child.icon}
+                                                </div>
+                                                <span className="duration-300 opacity-100 pointer-events-none ease">
+                                                    {child.name}
+                                                </span>
+                                            </NavLink>
+                                        </li>
+                                    ))}
+                            </>
                         ))}
                     </ul>
-                </div>
-
-                <div className="mx-4">
-                    <p className="invisible hidden text-gray-800 text-red-500 text-red-600 text-blue-500 bg-gray-500/30 bg-cyan-500/30 bg-emerald-500/30 bg-orange-500/30 bg-red-500/30 after:bg-gradient-to-tl after:from-zinc-800 after:to-zinc-700 dark:bg-gradient-to-tl dark:from-slate-750 dark:to-gray-850 after:from-blue-700 after:to-cyan-500 after:from-orange-500 after:to-yellow-500 after:from-green-600 after:to-lime-400 after:from-red-600 after:to-orange-600 after:from-slate-600 after:to-slate-300 text-emerald-500 text-cyan-500 text-slate-400"></p>
-                    <div
-                        className="relative flex flex-col min-w-0 break-words bg-transparent border-0 shadow-none rounded-2xl bg-clip-border"
-                        sidenav-card
-                    >
-                        <img
-                            className="w-1/2 mx-auto"
-                            src="/template/assets/img/illustrations/icon-documentation.svg"
-                            alt="sidebar illustrations"
-                        />
-                        <div className="flex-auto w-full p-4 pt-0 text-center">
-                            <div className="transition-all duration-200 ease-nav-brand">
-                                <h6 className="mb-0 dark:text-white text-slate-700">
-                                    Need help?
-                                </h6>
-                                <p className="mb-0 text-xs font-semibold leading-tight dark:text-white dark:opacity-60">
-                                    Please check our docs
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <a
-                        href="https://www.creative-tim.com/learning-lab/tailwind/html/quick-start/argon-dashboard/"
-                        target="_blank"
-                        className="inline-block w-full px-8 py-2 mb-4 text-xs font-bold leading-normal text-center text-white capitalize transition-all ease-in rounded-lg shadow-md bg-slate-700 bg-150 hover:shadow-xs hover:-translate-y-px"
-                    >
-                        Documentation
-                    </a>
-
-                    <a
-                        className="inline-block w-full px-8 py-2 text-xs font-bold leading-normal text-center text-white align-middle transition-all ease-in bg-blue-500 border-0 rounded-lg shadow-md select-none bg-150 bg-x-25 hover:shadow-xs hover:-translate-y-px"
-                        href="https://www.creative-tim.com/product/argon-dashboard-pro-tailwind?ref=sidebarfree"
-                        target="_blank"
-                    >
-                        Upgrade to pro
-                    </a>
                 </div>
             </aside>
         </div>
