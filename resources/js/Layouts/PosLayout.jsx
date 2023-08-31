@@ -244,10 +244,10 @@ export default function PosLayout({ user, header, children }) {
                     </div>
                 </div>
             </nav>
-            <main className="relative  transition-all duration-200 ease-in-out   rounded-xl">
+            <main className="relative h-[300px]  transition-all duration-200 ease-in-out   rounded-xl">
                 {/* <!-- Navbar --> */}
 
-                <div className="w-full px-6 py-6 mx-auto">{children}</div>
+                <div className=" px-6 py-6 mx-auto">{children}</div>
             </main>
         </div>
     );

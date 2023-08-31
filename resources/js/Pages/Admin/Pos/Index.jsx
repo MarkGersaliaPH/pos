@@ -1,3 +1,9 @@
+import {
+    DangerBadge,
+    GrayBadge,
+    InfoBadge,
+    PrimaryBadge,
+} from "@/Components/Badges";
 import Card, { CardBody, CardFooter, CardHeader } from "@/Components/Card";
 import DangerButton from "@/Components/DangerButton";
 import Modal from "@/Components/Modal";
@@ -11,7 +17,6 @@ import React from "react";
 import { FaTimes, FaTrash } from "react-icons/fa";
 
 function Index({ auth, items }) {
-    console.log(items);
     const { data, setData, post, processing, errors, reset } = useForm({});
 
     const handleChange = (e) => {
@@ -32,6 +37,8 @@ function Index({ auth, items }) {
         { name: "Lumpia Shanghai        ", price: 100 },
         { name: "Hungarian Sandwich        ", price: 200 },
         { name: "TEST3", price: 300 },
+        { name: "TEST3", price: 300 },
+        { name: "TEST3", price: 300 },
     ];
     return (
         <div>
@@ -44,13 +51,55 @@ function Index({ auth, items }) {
                 }
             >
                 <div className="flex justify-between gap-5 ">
-                    <Card className="flex-none  w-2/1 h-screen ">
-                        <CardHeader title="Order">
-                            <DangerButton>Clear All</DangerButton>
-                        </CardHeader>
-                        <div className="mb-auto">
+                    <Card className="flex-none  w-2/6">
+                        <div className="mb-auto  overflow-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b">
+                                        <td className="p-2 font-bold  text-black">
+                                            PRODUCT
+                                        </td>
+                                        <td className="p-2 font-bold  text-black">
+                                            QTY
+                                        </td>
+                                        <td className="p-2 font-bold  text-black">
+                                            PRICE
+                                        </td>
+                                        <td className="p-2 font-bold  text-black">
+                                            SUB TOTAL
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {selectedItems &&
+                                        selectedItems.map((item, key) => (
+                                            <tr className="border-b">
+                                                <td className="p-2">
+                                                    {item.name}
+                                                </td>
+                                                <td className="p-2">
+                                                    <NumberInputWithCounter
+                                                        initialValue={5}
+                                                        min={0}
+                                                        max={10}
+                                                        onChange={(value) =>
+                                                            console.log(value)
+                                                        }
+                                                    />
+                                                </td>
+                                                <td className="p-2">
+                                                    {item.price}
+                                                </td>
+                                                <td className="p-2 flex justify-between items-center pt-4">
+                                                    {item.price}
+                                                    <FaTrash className="text-red-500 " />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
                             <ul>
-                                {selectedItems &&
+                                {/* {selectedItems &&
                                     selectedItems.map((item, key) => (
                                         <li className="p-5 hover:bg-gray-50 border-b text-black font-bold  ">
                                             <div className=" align-middle mb-3 flex justify-between">
@@ -75,10 +124,10 @@ function Index({ auth, items }) {
                                                 </span>
                                             </div>
                                         </li>
-                                    ))}
+                                    ))} */}
                             </ul>
                         </div>
-                        <div className="mt-auto bg-gray-50">
+                        <div className="  bg-gray-50">
                             <table className="w-full  border text-center p-2">
                                 <tr>
                                     <td className="font-bold p-2 border w-1/2">
@@ -96,10 +145,9 @@ function Index({ auth, items }) {
                                 </tr>
                             </table>
                         </div>
-                        <div className="flex justify-center my-5 px-5">
-                            <PrimaryButton className="w-full">
-                                Pay Now
-                            </PrimaryButton>
+                        <div className="flex my-5 justify-center gap-5 px-5">
+                            <PrimaryButton>Pay Now</PrimaryButton>
+                            <DangerButton>Reset</DangerButton>
                         </div>
                     </Card>
                     <div className="flex-auto w-fit">
@@ -123,12 +171,20 @@ function Index({ auth, items }) {
                                 </SecondaryButton>
                             </CardBody>
                         </Card>
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap justify-start   gap-2 h-[450px] overflow-auto">
                             {items.products &&
                                 items.products.map((product, key) => (
-                                    <Card>
+                                    <Card className=" border lg:w-[230px] h-[200px] sm:w-1/2 ">
+                                        <div className="flex justify-between relative">
+                                            <InfoBadge className="right-0 from-blue-300 to-blue-800">
+                                                {product.stock_quantity} pieces
+                                            </InfoBadge>
+                                            <PrimaryBadge>
+                                                {product.price}
+                                            </PrimaryBadge>
+                                        </div>
                                         <img
-                                            className="rounded-t-lg lg:h-[150px]  "
+                                            className="rounded-t-lg w-full lg:h-[120px]  "
                                             src={product.image_url}
                                             alt=""
                                         />
