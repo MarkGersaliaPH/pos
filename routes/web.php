@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ProfileController; 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,10 +32,10 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
 
-    
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
 
 
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -44,6 +44,7 @@ Route::get('/dashboard', function () {
         Route::resource('categories', CategoryController::class);
         Route::get('pos', [PosController::class, 'index'])->name('pos');
         Route::get('pos/{id}', [PosController::class, 'show'])->name('pos.show');
+        Route::post('pos', [PosController::class, 'store'])->name('pos.store');
     });
 
 
@@ -53,4 +54,4 @@ Route::get('/dashboard', function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

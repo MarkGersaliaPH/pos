@@ -12,8 +12,8 @@ export default function PosLayout({ user, header, children }) {
         useState(false);
 
     return (
-        <div>
-            <nav
+        <div className="">
+            {/* <nav
                 className="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 mt-4 transition-all ease-in bg-blue-500 shadow-none dark:bg-slate-850/80 dark:shadow-dark-blur dark:backdrop-blur-2xl dark:backdrop-saturate-200 duration-250 rounded-2xl lg:flex-nowrap lg:justify-start"
                 navbar-main
                 navbar-scroll="false"
@@ -243,8 +243,8 @@ export default function PosLayout({ user, header, children }) {
                         </ul>
                     </div>
                 </div>
-            </nav>
-            <main className="relative h-[300px]  transition-all duration-200 ease-in-out   rounded-xl">
+            </nav> */}
+            <main className="relative   transition-all duration-200 ease-in-out   rounded-xl">
                 {/* <!-- Navbar --> */}
 
                 <div className=" px-6 py-6 mx-auto">{children}</div>

@@ -16,7 +16,7 @@ export function CardHeader({ title, children, className, titleClass }) {
 }
 export function CardBody({ title, children, className }) {
     return (
-        <div className={`p-6 ${className}`}>
+        <div className={`p-3 ${className}`}>
             <div>{children}</div>
         </div>
     );
@@ -34,8 +34,9 @@ function Card({ title, children, className, ...props }) {
         <div
             {...props}
             className={`
+                block rounded-xl  shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700  bg-white
+                
                 ${className}
-                block rounded-xl bg-white  shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700
                 `}
         >
             {children}

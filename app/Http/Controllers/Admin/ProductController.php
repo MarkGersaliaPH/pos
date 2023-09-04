@@ -25,7 +25,7 @@ class ProductController extends CrudController
         return [
             'name' => 'required',
             'price' => 'required',
-            'sku' => 'required',
+            'category_id' => 'required',
             'stock_quantity' => 'required',
         ];
     }

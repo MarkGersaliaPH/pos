@@ -18,7 +18,6 @@ class Product extends Model implements HasMedia
         'name',
         'description',
         'price',  // 8 total digits, 2 after the decimal point
-        'sku',  // Stock Keeping Unit, unique
         'stock_quantity',
         'barcode', // Barcode or UPC code
         'is_active', // If the product is active and available for sale 
@@ -28,5 +27,9 @@ class Product extends Model implements HasMedia
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }

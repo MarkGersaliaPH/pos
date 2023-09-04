@@ -6,31 +6,42 @@ import {
 } from "@/Components/Badges";
 import Card, { CardBody, CardFooter, CardHeader } from "@/Components/Card";
 import DangerButton from "@/Components/DangerButton";
+import InputLabel from "@/Components/InputLabel";
 import Modal from "@/Components/Modal";
 import NumberInputWithCounter from "@/Components/NumberInputWithCounter";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import SelectInput from "@/Components/SelectInput";
+import TextArea from "@/Components/TextArea";
+import TextInput from "@/Components/TextInput";
 import PosLayout from "@/Layouts/PosLayout";
 import { Link, router, useForm } from "@inertiajs/react";
-import React from "react";
-import { FaTimes, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaHome, FaTimes, FaTrash } from "react-icons/fa";
+import PaymentModalContent from "./PaymentModalContent";
+import axios from "axios";
+import Swal from "sweetalert2";
+import ReceiptModalContent from "./ReceiptModalContent";
+import CustomModal from "@/Components/CustomModal";
 
 function Index({ auth, items }) {
-    const { data, setData, post, processing, errors, reset } = useForm({});
+    const { data, setData, post, processing, errors, reset } = useForm({
+        payment_method: 1,
+        order_type: 1,
+    });
 
     const handleChange = (e) => {
-        setData(
-            e.target.name,
-            e.target.type == "checkbox" ? e.target.checked : e.target.value
-        );
+        // setData(
+        //     e.target.name,
+        //     e.target.type == "checkbox" ? e.target.checked : e.target.value
+        // );
 
         search(e);
     };
 
     const search = (e) => {
         let query = { category_id: e.target.value };
-        router.get(route(route().current()), query);
+        router.get(route(route().current()), query, { preserveState: true });
     };
 
     let selectedItems = [
@@ -40,6 +51,147 @@ function Index({ auth, items }) {
         { name: "TEST3", price: 300 },
         { name: "TEST3", price: 300 },
     ];
+
+    let [showModal, setShowModal] = useState(false);
+    let [showReceiptModal, setShowReceiptModal] = useState(false);
+    let [selectedProducts, setSelectedProducts] = useState([]);
+    const [orderSubtotal, setOrderSubtotal] = useState(0);
+    const [taxes, setTaxes] = useState(0);
+    const [discounts, setDiscounts] = useState(0);
+    const [grandTotal, setGrandTotal] = useState(0);
+
+    let [ordersData, setOrdersData] = useState({});
+
+    const handleCardClick = (product) => {
+        const existingProduct = selectedProducts.find(
+            (item) => item.id === product.id
+        );
+
+        if (!existingProduct) {
+            // The product isn't in the list, so we add a new entry
+            const newProduct = {
+                id: product.id,
+                name: product.name,
+                quantity: 1,
+                price: product.price,
+                sub_total: product.price, // Initial sub_total is just the product price since quantity is 1
+                max: product.stock_quantity,
+            };
+            setSelectedProducts([...selectedProducts, newProduct]);
+        } else {
+            // The product is already in the list, so we update its quantity and sub_total
+            const updatedProducts = selectedProducts.map((item) => {
+                if (item.id === product.id) {
+                    const newQuantity = item.quantity + 1;
+                    return {
+                        ...item,
+                        quantity: newQuantity,
+                        sub_total: newQuantity * item.price,
+                    };
+                }
+                return item; // Return the item unchanged if it's not the one we're updating
+            });
+            setSelectedProducts(updatedProducts);
+        }
+    };
+
+    const removeProduct = (product) => {
+        setSelectedProducts(
+            selectedProducts.filter((item) => item.id !== product.id)
+        );
+    };
+
+    const isProductSelected = (product) => {
+        return selectedProducts.some(
+            (selectedProduct) => selectedProduct.id === product.id
+        );
+    };
+
+    const handleQuantityChange = (productId, newQuantity) => {
+        const updatedProducts = selectedProducts.map((item) => {
+            if (item.id === productId) {
+                return {
+                    ...item,
+                    quantity: newQuantity,
+                    sub_total: newQuantity * item.price,
+                };
+            }
+            return item; // Return the item unchanged if it's not the one we're updating
+        });
+
+        setSelectedProducts(updatedProducts);
+    };
+    useEffect(() => {
+        const newOrderSubtotal = selectedProducts.reduce(
+            (sum, product) => sum + parseFloat(product.sub_total),
+            0
+        );
+
+        setOrderSubtotal(newOrderSubtotal);
+        setGrandTotal(newOrderSubtotal);
+        // Uncomment and use the below line if you want to include tax and discount in the future
+        // setGrandTotal(newOrderSubtotal + (newOrderSubtotal * taxRate) - (newOrderSubtotal * discountRate));
+    }, [selectedProducts]);
+
+    const handleTaxChange = (event) => {
+        setTaxes(event.target.value);
+    };
+
+    const handleDiscountChange = (event) => {
+        setDiscounts(event.target.value);
+    };
+
+    useEffect(() => {
+        const totalWithTax = orderSubtotal + orderSubtotal * (taxes / 100);
+        const newGrandTotal = totalWithTax - totalWithTax * (discounts / 100);
+        setGrandTotal(newGrandTotal);
+    }, [orderSubtotal, taxes, discounts]);
+
+    const onChangeOrdersData = (e) => {
+        setData({
+            ...data,
+            [e.target.name]: e.target.value,
+        });
+    };
+    useEffect(() => {
+        const change = data.payment_recieved - grandTotal;
+        setData((prevData) => ({
+            ...prevData,
+            payment_change: change,
+        }));
+    }, [data.payment_recieved, grandTotal]);
+
+    let [receiptData, setReceiptData] = useState({});
+
+    const submitOrder = () => {
+        const baseUrl = "admin.pos.";
+        data.total_amount = grandTotal;
+        data.tax_amount = taxes;
+        data.discount_amount = discounts;
+        data.subtotal_amount = orderSubtotal;
+        data.products = JSON.stringify(selectedProducts);
+        axios
+            .post(route(baseUrl + "store"), data)
+            .then(function (response) {
+                clearDatas();
+                setShowModal(false);
+                setShowReceiptModal(true);
+                setReceiptData(response.data.receipt_data);
+            })
+            .catch(function (error) {
+                console.log("error", error.response.data.errors.payment_method);
+            });
+    };
+
+    const clearDatas = () => {
+        setSelectedProducts([]);
+        setDiscounts([]);
+        setData([]);
+        setTaxes([]);
+        setGrandTotal(0);
+        setOrderSubtotal(0);
+    };
+
     return (
         <div>
             <PosLayout
@@ -50,56 +202,126 @@ function Index({ auth, items }) {
                     </h2>
                 }
             >
-                <div className="flex justify-between gap-5 ">
-                    <Card className="flex-none  w-2/6">
-                        <div className="mb-auto  overflow-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b">
-                                        <td className="p-2 font-bold  text-black">
-                                            PRODUCT
-                                        </td>
-                                        <td className="p-2 font-bold  text-black">
-                                            QTY
-                                        </td>
-                                        <td className="p-2 font-bold  text-black">
-                                            PRICE
-                                        </td>
-                                        <td className="p-2 font-bold  text-black">
-                                            SUB TOTAL
-                                        </td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedItems &&
-                                        selectedItems.map((item, key) => (
-                                            <tr className="border-b">
-                                                <td className="p-2">
-                                                    {item.name}
-                                                </td>
-                                                <td className="p-2">
-                                                    <NumberInputWithCounter
-                                                        initialValue={5}
-                                                        min={0}
-                                                        max={10}
-                                                        onChange={(value) =>
-                                                            console.log(value)
-                                                        }
-                                                    />
-                                                </td>
-                                                <td className="p-2">
-                                                    {item.price}
-                                                </td>
-                                                <td className="p-2 flex justify-between items-center pt-4">
-                                                    {item.price}
-                                                    <FaTrash className="text-red-500 " />
+                <Modal show={showModal} maxWidth="5xl">
+                    <PaymentModalContent
+                        items={items}
+                        grandTotal={grandTotal}
+                        selectedProducts={selectedProducts}
+                        orderSubtotal={orderSubtotal}
+                        taxes={taxes}
+                        discounts={discounts}
+                        setShowModal={setShowModal}
+                        onChangeOrdersData={onChangeOrdersData}
+                        data={data}
+                        submitOrder={submitOrder}
+                        errors={errors}
+                    />
+                </Modal>
+
+                <CustomModal show={showReceiptModal} title="POS Invoice">
+                    <ReceiptModalContent data={receiptData} />
+                </CustomModal>
+
+                <div className="flex relative">
+                    <div className="fixed w-1/3   h-full">
+                        <Card className="border-blue-500 border">
+                            <CardHeader
+                                title={
+                                    <h1 className="font-bold ">
+                                        WELCOME TO POS
+                                    </h1>
+                                }
+                            >
+                                <div className="mb-2">
+                                    <Link
+                                        className="text-blue-500 flex gap-1 text-xs items-center"
+                                        href={route("dashboard")}
+                                    >
+                                        <FaHome />
+                                        Back to home
+                                    </Link>
+                                </div>
+                            </CardHeader>
+                            <div className="mb-auto h-[200px]   overflow-auto text-xs">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b text-xs">
+                                            <td className="p-2 font-bold  text-black">
+                                                PRODUCT
+                                            </td>
+                                            <td className="p-2 font-bold  text-black">
+                                                QTY
+                                            </td>
+                                            <td className="p-2 font-bold  text-black">
+                                                PRICE
+                                            </td>
+                                            <td className="p-2 font-bold  text-black">
+                                                SUB TOTAL
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {selectedProducts.length ? (
+                                            selectedProducts.map(
+                                                (item, key) => (
+                                                    <tr className="border-b">
+                                                        <td className="p-2">
+                                                            {item.name}
+                                                        </td>
+                                                        <td className="p-2">
+                                                            <NumberInputWithCounter
+                                                                initialValue={
+                                                                    item.quantity
+                                                                }
+                                                                min={1}
+                                                                max={
+                                                                    item.stock_quantity
+                                                                }
+                                                                value={
+                                                                    item.quantity
+                                                                }
+                                                                onChange={(
+                                                                    value
+                                                                ) =>
+                                                                    handleQuantityChange(
+                                                                        item.id,
+                                                                        value
+                                                                    )
+                                                                }
+                                                                className="w-10"
+                                                            />
+                                                        </td>
+                                                        <td className="p-2">
+                                                            {item.price}
+                                                        </td>
+                                                        <td className="p-2 flex justify-between items-center pt-4">
+                                                            {item.sub_total}
+                                                            <FaTrash
+                                                                className="text-red-500 cursor-pointer"
+                                                                onClick={() =>
+                                                                    removeProduct(
+                                                                        item
+                                                                    )
+                                                                }
+                                                            />
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )
+                                        ) : (
+                                            <tr>
+                                                <td
+                                                    colSpan={4}
+                                                    className="p-2 text-center border-b"
+                                                >
+                                                    No Data Available
                                                 </td>
                                             </tr>
-                                        ))}
-                                </tbody>
-                            </table>
-                            <ul>
-                                {/* {selectedItems &&
+                                        )}
+                                    </tbody>
+                                </table>
+                                <ul>
+                                    {/* {selectedItems &&
                                     selectedItems.map((item, key) => (
                                         <li className="p-5 hover:bg-gray-50 border-b text-black font-bold  ">
                                             <div className=" align-middle mb-3 flex justify-between">
@@ -125,33 +347,63 @@ function Index({ auth, items }) {
                                             </div>
                                         </li>
                                     ))} */}
-                            </ul>
-                        </div>
-                        <div className="  bg-gray-50">
-                            <table className="w-full  border text-center p-2">
-                                <tr>
-                                    <td className="font-bold p-2 border w-1/2">
-                                        Sub Total
-                                    </td>
-                                    <td className="border p-2">100</td>
-                                </tr>
-                                <tr>
-                                    <td className="font-bold p-2 border">
-                                        Grand Total
-                                    </td>
-                                    <td className="border p-2 text-xl font-bold text-red-500">
-                                        100
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div className="flex my-5 justify-center gap-5 px-5">
-                            <PrimaryButton>Pay Now</PrimaryButton>
-                            <DangerButton>Reset</DangerButton>
-                        </div>
-                    </Card>
-                    <div className="flex-auto w-fit">
-                        <Card className="mb-5">
+                                </ul>
+                            </div>
+                            <CardBody>
+                                <div className="totals-section my-5">
+                                    <div className="subtotal flex my-4 items-center justify-between gap-3">
+                                        <span>Subtotal:</span>{" "}
+                                        <span>{orderSubtotal.toFixed(2)}</span>
+                                    </div>
+                                    <div className="taxes flex my-4 items-center justify-between gap-3">
+                                        <span>Taxes:</span>{" "}
+                                        <span>
+                                            <TextInput
+                                                onChange={handleTaxChange}
+                                                type="text"
+                                                value={
+                                                    typeof taxes === "number"
+                                                        ? taxes.toFixed(2)
+                                                        : taxes
+                                                }
+                                            />
+                                        </span>
+                                    </div>
+                                    <div className="discounts flex my-4 items-center justify-between gap-3">
+                                        <span>Discounts:</span>{" "}
+                                        <TextInput
+                                            value={
+                                                typeof discounts === "number"
+                                                    ? discounts.toFixed(2)
+                                                    : discounts
+                                            }
+                                            onChange={handleDiscountChange}
+                                        />
+                                    </div>
+                                    <div className="grand-total flex my-4 items-center justify-between gap-3">
+                                        <span>Grand Total:</span>{" "}
+                                        <span className="text-[30px] font-bold text-black">
+                                            {grandTotal.toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex my-5 justify-center gap-5 ">
+                                    <DangerButton
+                                        onClick={() => setSelectedProducts([])}
+                                    >
+                                        Reset
+                                    </DangerButton>
+                                    <PrimaryButton
+                                        onClick={() => setShowModal(true)}
+                                    >
+                                        Pay Now
+                                    </PrimaryButton>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </div>
+                    <div className="w-2/3 ml-auto pl-10">
+                        <Card className="mb-5 border-blue-500 border ">
                             <CardBody>
                                 <SelectInput
                                     id="name"
@@ -164,36 +416,59 @@ function Index({ auth, items }) {
                                     options={items.categories}
                                 />
                                 <SecondaryButton
-                                    href={route(route().current())}
+                                    href={route(
+                                        route().current(),
+                                        {},
+                                        { preserveState: true }
+                                    )}
                                     className="ml-5"
                                 >
                                     Clear
                                 </SecondaryButton>
                             </CardBody>
                         </Card>
-                        <div className="flex flex-wrap justify-start   gap-2 h-[450px] overflow-auto">
-                            {items.products &&
+                        <div className="flex flex-wrap justify-start   gap-2 overflow-auto">
+                            {items.products ? (
                                 items.products.map((product, key) => (
-                                    <Card className=" border lg:w-[230px] h-[200px] sm:w-1/2 ">
-                                        <div className="flex justify-between relative">
-                                            <InfoBadge className="right-0 from-blue-300 to-blue-800">
-                                                {product.stock_quantity} pieces
-                                            </InfoBadge>
-                                            <PrimaryBadge>
-                                                {product.price}
-                                            </PrimaryBadge>
+                                    <Card
+                                        className={`lg:w-1/6 sm:w-1/4 cursor-pointer ${
+                                            isProductSelected(product)
+                                                ? "border border-red-500"
+                                                : ""
+                                        } `}
+                                    >
+                                        <div
+                                            onClick={() =>
+                                                handleCardClick(product)
+                                            }
+                                        >
+                                            <div className="flex justify-between relative">
+                                                <InfoBadge className="right-0 from-blue-300 to-blue-800">
+                                                    {product.stock_quantity} pcs
+                                                </InfoBadge>
+                                                <PrimaryBadge>
+                                                    {product.price}
+                                                </PrimaryBadge>
+                                            </div>
+                                            <img
+                                                className="rounded-t-lg w-full  "
+                                                src={product.image_url}
+                                                alt=""
+                                            />
+                                            <CardBody className="text-sm">
+                                                {product.name}
+                                                <span className="text-xs text-gray-400 block">
+                                                    {product.description}
+                                                </span>
+                                            </CardBody>
                                         </div>
-                                        <img
-                                            className="rounded-t-lg w-full lg:h-[120px]  "
-                                            src={product.image_url}
-                                            alt=""
-                                        />
-                                        <CardBody>
-                                            {product.name}
-                                            <h4>{product.price}</h4>
-                                        </CardBody>
                                     </Card>
-                                ))}
+                                ))
+                            ) : (
+                                <div className="text-center">
+                                    No data available
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

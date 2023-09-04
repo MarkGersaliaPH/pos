@@ -118,7 +118,7 @@ function Form({ auth, item, additionalItem }) {
                                 />
 
                                 <InputError
-                                    message={errors.name}
+                                    message={errors.category_id}
                                     className="mt-2"
                                 />
                             </div>
@@ -127,7 +127,7 @@ function Form({ auth, item, additionalItem }) {
                                 <Toggle
                                     name="is_active"
                                     onChange={handleChange}
-                                    checked={data.is_active}
+                                    checked={data.is_active || true}
                                 />
                                 ,
                             </div>
@@ -168,24 +168,7 @@ function Form({ auth, item, additionalItem }) {
                                     className="mt-2"
                                 />
                             </div>
-                            <div className="mt-4">
-                                <InputLabel htmlFor="name" value="SKU" />
-
-                                <TextInput
-                                    id="sku"
-                                    name="sku"
-                                    value={data.sku}
-                                    className="mt-1 block w-full"
-                                    autoComplete="sku"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.sku}
-                                    className="mt-2"
-                                />
-                            </div>
+                            
 
                             <div className="mt-4">
                                 <InputLabel htmlFor="name" value="Quantity" />

@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextInput from "./TextInput";
 import SecondaryButton from "./SecondaryButton";
 import { FaMinus, FaPlus } from "react-icons/fa";
 
-function NumberInputWithCounter({ initialValue, min, max, onChange }) {
-    const [count, setCount] = useState(initialValue || 0);
+function NumberInputWithCounter({ initialValue, min, max, onChange,value }) {
+    const [count, setCount] = useState(value || 0);
+
+    useEffect(()=>{
+        setCount(value)
+    },[value]);
 
     const increment = () => {
         if (!max || count < max) {
@@ -26,21 +30,21 @@ function NumberInputWithCounter({ initialValue, min, max, onChange }) {
         <div className="flex  align-middle items-center border rounded-md">
             <SecondaryButton
                 onClick={decrement}
-                className="  border-0 rounded-l-md"
+                className="  border-0 rounded-l-md p-0"
             >
                 <FaMinus />
             </SecondaryButton>
-            <TextInput
+            <input
                 type="number"
                 value={count}
                 onChange={(e) => setCount(Number(e.target.value))}
-                className=" text-center flex-1 outline-none border-0"
+                className=" text-center w-5 flex-1 outline-none border-0 p-0"
                 min={min}
                 max={max}
             />
             <SecondaryButton
                 onClick={increment}
-                className="  rounded-r-md border-0"
+                className="  rounded-r-md border-0 p-0"
             >
                 <FaPlus />
             </SecondaryButton>
