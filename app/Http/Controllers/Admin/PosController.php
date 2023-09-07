@@ -50,7 +50,7 @@ class PosController extends Controller
 
 
             $model->load(['orderItems', 'orderItems.product', 'payment_method']);
-
+            
 
             return response()->json(['message' => 'Success', 'receipt_data' => $model]);
             DB::commit();

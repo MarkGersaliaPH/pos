@@ -25,6 +25,7 @@
         "filepond-plugin-image-preview": "^4.6.11",
         "react-filepond": "^7.1.2",
         "react-icons": "^4.10.1",
+        "react-to-print": "^2.14.13",
         "sweetalert2": "^11.7.27"
     }
 }

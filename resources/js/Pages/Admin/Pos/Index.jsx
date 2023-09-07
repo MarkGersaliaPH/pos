@@ -186,12 +186,24 @@ function Index({ auth, items }) {
     const clearDatas = () => {
         setSelectedProducts([]);
         setDiscounts([]);
-        setData([]);
+        setData({
+            payment_method: 1,
+            order_type: 1,
+        });
         setTaxes([]);
         setGrandTotal(0);
         setOrderSubtotal(0);
     };
-
+    function printElement(element) {
+        let printWindow = window.open("", "_blank");
+        printWindow.document.write(
+            "<html><head><title>Print Receipt</title></head><body>"
+        );
+        printWindow.document.write(element.outerHTML);
+        printWindow.document.write("</body></html>");
+        printWindow.document.close();
+        printWindow.print();
+    }
     return (
         <div>
             <PosLayout
@@ -224,7 +236,7 @@ function Index({ auth, items }) {
 
                 <div className="flex relative">
                     <div className="fixed w-1/3   h-full">
-                        <Card className="border-blue-500 border">
+                        <Card className="  shadow-lg dark:border-slate-700 border">
                             <CardHeader
                                 title={
                                     <h1 className="font-bold ">
@@ -243,19 +255,19 @@ function Index({ auth, items }) {
                                 </div>
                             </CardHeader>
                             <div className="mb-auto h-[200px]   overflow-auto text-xs">
-                                <table className="w-full">
+                                <table className="w-full ">
                                     <thead>
-                                        <tr className="border-b text-xs">
-                                            <td className="p-2 font-bold  text-black">
+                                        <tr className="border-b text-xs dark:border-slate-700">
+                                            <td className="p-2 font-bold  text-slate-400">
                                                 PRODUCT
                                             </td>
-                                            <td className="p-2 font-bold  text-black">
+                                            <td className="p-2 font-bold  text-slate-400">
                                                 QTY
                                             </td>
-                                            <td className="p-2 font-bold  text-black">
+                                            <td className="p-2 font-bold  text-slate-400">
                                                 PRICE
                                             </td>
-                                            <td className="p-2 font-bold  text-black">
+                                            <td className="p-2 font-bold  text-slate-400">
                                                 SUB TOTAL
                                             </td>
                                         </tr>
@@ -264,7 +276,7 @@ function Index({ auth, items }) {
                                         {selectedProducts.length ? (
                                             selectedProducts.map(
                                                 (item, key) => (
-                                                    <tr className="border-b">
+                                                    <tr className="border-b dark:border-slate-700">
                                                         <td className="p-2">
                                                             {item.name}
                                                         </td>
@@ -382,7 +394,7 @@ function Index({ auth, items }) {
                                     </div>
                                     <div className="grand-total flex my-4 items-center justify-between gap-3">
                                         <span>Grand Total:</span>{" "}
-                                        <span className="text-[30px] font-bold text-black">
+                                        <span className="text-[30px] font-bold text-black dark:text-white">
                                             {grandTotal.toFixed(2)}
                                         </span>
                                     </div>
@@ -403,7 +415,7 @@ function Index({ auth, items }) {
                         </Card>
                     </div>
                     <div className="w-2/3 ml-auto pl-10">
-                        <Card className="mb-5 border-blue-500 border ">
+                        <Card className="mb-5  shadow-lg border dark:border-slate-700 ">
                             <CardBody>
                                 <SelectInput
                                     id="name"
@@ -433,7 +445,7 @@ function Index({ auth, items }) {
                                     <Card
                                         className={`lg:w-1/6 sm:w-1/4 cursor-pointer ${
                                             isProductSelected(product)
-                                                ? "border border-red-500"
+                                                ? "border border-red-500 dark:border-slate-400"
                                                 : ""
                                         } `}
                                     >
