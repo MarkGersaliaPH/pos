@@ -3,7 +3,7 @@ import React from "react";
 export function CardHeader({ title, children, className, titleClass }) {
     return (
         <div
-            className={`flex justify-between items-center p-6 border-b ${className}`}
+            className={`flex justify-between items-center p-6 border-b dark:border-slate-200 ${className}`}
         >
             <h5
                 className={`text-xl font-medium  leading-tight align-middle text-neutral-800 dark:text-neutral-50 ${titleClass}`}
@@ -34,7 +34,7 @@ function Card({ title, children, className, ...props }) {
         <div
             {...props}
             className={`
-                block rounded-xl  shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700  bg-white
+                block rounded-xl  shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-slate-800  bg-white
                 
                 ${className}
                 `}

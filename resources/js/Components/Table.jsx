@@ -32,14 +32,14 @@ function Table({ headers, body, actions, fromNumber = 1 }) {
     };
     return (
         <div>
-            <table className="items-center justify-center w-full mb-0 align-top border-collapse dark:border-white/40 text-slate-500">
-                <thead className="align-bottom">
-                    <tr className="bg-gray-100">
+            <table className="items-center justify-center w-full mb-0 align-top border-collapse dark:bg-slate-800 dark:border-white/40 text-slate-500">
+                <thead className="align-bottom dark:border-slate-700">
+                    <tr className="bg-gray-100 dark:bg-slate-800   dark:border-slate-700 ">
                         <th className="w-10"></th>
                         {headers.map((header, index) => (
                             <th
                                 key={index}
-                                className="px-6 py-3 font-bold text-left   align-middle bg-transparent border-b shadow-none dark:border-white/40 dark:text-white border-b-solid tracking-none whitespace-nowrap text-slate-400 "
+                                className="px-6 py-3 font-bold text-left     align-middle bg-transparent   shadow-none  dark:text-slate-500   tracking-none whitespace-nowrap text-slate-400 "
                             >
                                 {header}
                             </th>
@@ -51,7 +51,7 @@ function Table({ headers, body, actions, fromNumber = 1 }) {
                     {body.map((row, rowIndex) => (
                         <tr
                             key={rowIndex}
-                            className="border-b hover:bg-gray-50"
+                            className="border-b hover:bg-gray-50 dark:hover:bg-slate-900 dark:border-slate-700"
                             // className={`${
                             //     rowIndex !== body.length - 1
                             //         ? "border-b dark:border-white/40"
@@ -66,7 +66,7 @@ function Table({ headers, body, actions, fromNumber = 1 }) {
                                     className="px-6 py-3 align-middle bg-transparent  whitespace-nowrap shadow-transparent"
                                     key={cellIndex}
                                 >
-                                    <p className="mb-0   font-semibold leading-normal dark:text-white dark:opacity-60">
+                                    <p className="mb-0   font-semibold leading-normal dark:text-white dark:border-slate-200 dark:opacity-60">
                                         {cell}
                                     </p>
                                 </td>

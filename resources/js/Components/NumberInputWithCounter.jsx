@@ -27,10 +27,10 @@ function NumberInputWithCounter({ initialValue, min, max, onChange,value }) {
     };
 
     return (
-        <div className="flex  align-middle items-center border rounded-md">
+        <div className="flex  align-middle items-center border dark:border-slate-500 rounded-md">
             <SecondaryButton
                 onClick={decrement}
-                className="  border-0 rounded-l-md p-0"
+                className="  border-0 rounded-l-md p-0  dark:bg-transparent dark:hover:bg-slate-900"
             >
                 <FaMinus />
             </SecondaryButton>
@@ -38,13 +38,13 @@ function NumberInputWithCounter({ initialValue, min, max, onChange,value }) {
                 type="number"
                 value={count}
                 onChange={(e) => setCount(Number(e.target.value))}
-                className=" text-center w-5 flex-1 outline-none border-0 p-0"
+                className=" text-center w-5 flex-1 dark:bg-transparent outline-none border-0 p-0"
                 min={min}
                 max={max}
             />
             <SecondaryButton
                 onClick={increment}
-                className="  rounded-r-md border-0 p-0"
+                className="  rounded-r-md border-0 p-0  dark:bg-transparent dark:hover:bg-slate-900"
             >
                 <FaPlus />
             </SecondaryButton>
