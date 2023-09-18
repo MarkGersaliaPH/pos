@@ -15,8 +15,8 @@ class Order extends Model
         'user_id',
         'total_amount',
         'subtotal_amount',
-        'tax_amount',
-        'discount_amount',
+        // 'tax_amount',
+        // 'discount_amount',
         'payment_method',
         'order_status',
         'payment_recieved',
@@ -27,7 +27,19 @@ class Order extends Model
     ];
 
 
-    public function orderItems()
+    protected $dates = ['created_at'];
+
+
+
+    protected $casts = [
+        'created_at' => 'date:Y-m-d H:m:s',
+    ];
+
+
+    // protected $dateFormat = 'm/d/Y';
+
+
+    public function order_items()
     {
         return $this->hasMany(OrderItem::class);
     }

@@ -16,13 +16,16 @@ import TextArea from "@/Components/TextArea";
 import TextInput from "@/Components/TextInput";
 import PosLayout from "@/Layouts/PosLayout";
 import { Link, router, useForm } from "@inertiajs/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaHome, FaTimes, FaTrash } from "react-icons/fa";
 import PaymentModalContent from "./PaymentModalContent";
 import axios from "axios";
 import Swal from "sweetalert2";
 import ReceiptModalContent from "./ReceiptModalContent";
 import CustomModal from "@/Components/CustomModal";
+import jsPDF from "jspdf";
+import Receipt from "./Receipt";
+import ReactToPrint from "react-to-print";
 
 function Index({ auth, items }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -204,6 +207,28 @@ function Index({ auth, items }) {
         printWindow.document.close();
         printWindow.print();
     }
+
+    const pdfViewerRef = useRef(null);
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text("Hello world!", 10, 10);
+
+        const pdfOutput = doc.output("datauristring");
+
+        // Use the output in the iframe
+        if (pdfViewerRef.current) {
+            pdfViewerRef.current.src = pdfOutput;
+        }
+
+        setShowIframe(true);
+    };
+
+    const [showIframe, setShowIframe] = useState(false);
+    const componentRef = useRef();
+
+    const receiptRef = useRef();
     return (
         <div>
             <PosLayout
@@ -229,10 +254,25 @@ function Index({ auth, items }) {
                         errors={errors}
                     />
                 </Modal>
-
                 <CustomModal show={showReceiptModal} title="POS Invoice">
                     <ReceiptModalContent data={receiptData} />
                 </CustomModal>
+
+                {/* <div id="receipt" style={{ display: "none" }}>
+                    <PaymentModalContent
+                        items={items}
+                        grandTotal={grandTotal}
+                        selectedProducts={selectedProducts}
+                        orderSubtotal={orderSubtotal}
+                        taxes={taxes}
+                        discounts={discounts}
+                        setShowModal={setShowModal}
+                        onChangeOrdersData={onChangeOrdersData}
+                        data={data}
+                        submitOrder={submitOrder}
+                        errors={errors}
+                    />
+                </div> */}
 
                 <div className="flex relative">
                     <div className="fixed w-1/3   h-full">

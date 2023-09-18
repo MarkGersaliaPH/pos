@@ -47,7 +47,7 @@ function PaymentModalContent({
             icon: (
                 <MdOutlineCallReceived className="w-5 h-5 ml-3 text-blue-500" />
             ),
-            value: 2,
+            value: 3,
         },
     ];
     return (

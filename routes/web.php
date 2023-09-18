@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
         Route::get('pos', [PosController::class, 'index'])->name('pos');
         Route::get('pos/{id}', [PosController::class, 'show'])->name('pos.show');
         Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+        Route::get('receipt/generate_pdf/{id}', [PosController::class, 'generatePdf'])->name('order.generatepdf');
     });
 
 
