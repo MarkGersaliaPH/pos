@@ -8,6 +8,7 @@ import {
     FcConferenceCall,
     FcCustomerSupport,
     FcList,
+    FcMoneyTransfer,
     FcOpenedFolder,
     FcPackage,
     FcSelfServiceKiosk,
@@ -23,9 +24,15 @@ function Sidebar() {
         },
         {
             name: "Point of Sales",
-            route: "admin.pos",
+            route: "admin.pos.index",
             key: "pos",
             icon: <FcSelfServiceKiosk className="text-blue-400 text-lg" />,
+        },
+        {
+            name: "Cash Drawer Manager",
+            route: "admin.cash-drawer.index",
+            key: "cash-drawer",
+            icon: <FcMoneyTransfer className="text-blue-400 text-lg" />,
         },
 
         {
@@ -95,7 +102,7 @@ function Sidebar() {
                         target="_blank"
                     >
                         <span className="text-xl text-blue-500 font-semibold transition-all duration-200 ease-nav-brand block">
-                            POSerize
+                            {app_name}
                         </span>
 
                         <span className="text-sm font-extralight text-gray-400">

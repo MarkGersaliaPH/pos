@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PosController extends Controller
 {
@@ -34,7 +35,7 @@ class PosController extends Controller
         $this->validate($request, $this->validationRules($request));
 
         $model = new Order;
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
 
             $requestData = $request->only($model->getFillable());
@@ -46,31 +47,38 @@ class PosController extends Controller
             $model->save();
 
 
-            $this->saveOrderItems($request->products, $model->id);
+            $this->saveorder_items($request->products, $model->id);
 
 
-            $model->load(['orderItems', 'orderItems.product', 'payment_method']);
-            
+            $model->load(['order_items', 'order_items.product', 'payment_method']);
+
 
             return response()->json(['message' => 'Success', 'receipt_data' => $model]);
-            DB::commit();
+            // DB::commit();
         } catch (\Exception $e) {
+            dd($e);
             //throw $th;
-            DB::rollBack();
+            // DB::rollBack();
         }
     }
 
-    public function saveOrderItems($products, $id)
+    public function saveorder_items($products, $id)
     {
         $productsArr = [];
         foreach (json_decode($products, true) as $key => $product) {
-            OrderItem::create([
+            $order_item = OrderItem::create([
                 'order_id' => $id,
                 'product_id' => $product['id'],
                 'quantity' => $product['quantity'],
                 'price' => $product['price'],
                 'total' => $product['sub_total']
             ]);
+
+            $item  = $order_item->product; 
+            $item->stock_quantity = $item->stock_quantity - $product['quantity'];
+            $item->save();
+ 
+
         }
     }
 
@@ -98,5 +106,14 @@ class PosController extends Controller
             'payment_method' => "required",
             'order_type' => "required"
         ];
+    }
+
+    public function generatepdf($id)
+    {
+
+        $data = Order::with('order_items', 'order_items.product', 'payment_method')->find($id);
+        $pdf = Pdf::loadView('receipt', ['data' => $data->toArray()]);
+
+        return $pdf->stream('receipt.pdf');
     }
 }

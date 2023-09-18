@@ -31,13 +31,11 @@ export function CardFooter({ title, children }) {
 
 function Card({ title, children, className, ...props }) {
     return (
-        <div
-            {...props}
-            className={`
-                block rounded-xl  shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-slate-800  bg-white
-                
-                ${className}
-                `}
+        <div  {...props}
+        className={`
+            block rounded-xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-slate-800 bg-white
+            ${className}
+            `}
         >
             {children}
         </div>

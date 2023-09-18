@@ -7,3 +7,40 @@ html, body {
     min-height: 100vh;
     
 }
+ 
+/* Print-specific styles */
+@media print {
+    body * {
+        visibility: hidden;  /* Hide everything by default */
+    } 
+   
+  html, body {
+    height:100%;  
+    overflow: visible; /* Let content flow to the next page */
+    page-break-inside: avoid; /* Avoid breaking inside of elements */
+  }
+    button{
+        
+        visibility: hidden;  /* Hide everything by default */
+    }
+
+    #receipt, #receipt * {
+        visibility: visible; /* Only display the target div and its contents */
+    }
+
+    #receipt {
+        height: auto !important; /* Reset the height */
+        max-height: 100% !important; /* Ensure it doesn't grow beyond the viewport */
+        overflow: visible !important; /* Ensure the content is not clipped */
+    }/* Avoid page breaks inside the receipt content */
+    #receipt {
+        page-break-inside: avoid;
+    }
+
+    .modal-content{
+        position: absolute !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+}

@@ -48,10 +48,9 @@ function Index({ auth, items }) {
                             Create
                         </PrimaryButton>
                     </CardHeader>
-                    <Table headers={headers} body={body} actions={actions} />
-                    <CardFooter>
                         <Pagination items={items} />
-                    </CardFooter>
+                    <Table headers={headers} body={body} actions={actions} /> 
+                        <Pagination items={items} />
                 </Card>
             </Authenticated>
         </div>

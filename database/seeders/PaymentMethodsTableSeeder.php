@@ -15,8 +15,9 @@ class PaymentMethodsTableSeeder extends Seeder
     {
         $paymentMethods = [
             ['name' => 'Cash', 'is_enabled' => true],
-            ['name' => 'Gcash', 'is_enabled' => true],
             ['name' => 'Card', 'is_enabled' => true],
+            ['name' => 'Gcash', 'is_enabled' => true],
+            ['name' => 'PayMaya', 'is_enabled' => true],
         ];
 
         foreach ($paymentMethods as $method) {

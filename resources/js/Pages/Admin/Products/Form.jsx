@@ -33,28 +33,15 @@ function Form({ auth, item, additionalItem }) {
             data.image = image;
             post(route(baseUrl + "update", data.id), {
                 onSuccess: () => {
-                    Swal.fire("Good job!", "Data is updated!", "success").then(
-                        (result) => {
-                            /* Read more about isConfirmed, isDenied below */
-                            if (result.isConfirmed) {
-                                window.location.href = route(baseUrl + "index");
-                            }
-                        }
-                    );
+                    Swal.fire("Good job!", "Data is updated!", "success")
+                    
                 },
             });
         } else {
             data.image = image;
             post(route(baseUrl + "store"), {
                 onSuccess: () => {
-                    Swal.fire("Good job!", "Data is created!", "success").then(
-                        (result) => {
-                            /* Read more about isConfirmed, isDenied below */
-                            if (result.isConfirmed) {
-                                window.location.href = route(baseUrl + "index");
-                            }
-                        }
-                    );
+                    Swal.fire("Good job!", "Data is created!", "success");
                 },
             });
         }

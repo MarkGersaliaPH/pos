@@ -1,32 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import Sidebar from "./Sidebar";
-import Swal from "sweetalert2";
 
-export default function Authenticated({ user, header, children }) {
+export default function Pos({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
-    let {flash} = usePage().props
-
-    useEffect(()=>{
-        if(flash.message){ 
-                    Swal.fire("Oops...", flash.message, "info").then((result) => {
-                        /* Read more about isConfirmed, isDenied below */
-                        if (result.isConfirmed) {
-                            router.visit(route('admin.cash-drawer.create'));
-
-                        } 
-                      })
-        }
-    },[flash.message])
     return (
         <div className="">
-            <div class="absolute w-full bg-blue-500 dark:hidden min-h-75 shadow-sm"></div>
+            <div class="absolute w-full bg-slate-500 dark:hidden min-h-75 shadow-sm"></div>
 
             <Sidebar />
 

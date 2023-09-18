@@ -47,7 +47,7 @@ function PaymentModalContent({
             icon: (
                 <MdOutlineCallReceived className="w-5 h-5 ml-3 text-blue-500" />
             ),
-            value: 2,
+            value: 3,
         },
     ];
     return (
@@ -202,14 +202,14 @@ function PaymentModalContent({
                         <div className="taxes flex border-dashed border-b-2  pb-2 items-center justify-between gap-3">
                             <span>Taxes:</span>{" "}
                             <span>
-                                {" "}
+                                {" "} - 
                                 {typeof taxes === "number"
                                     ? taxes.toFixed(2)
                                     : taxes}{" "}
                             </span>
                         </div>
                         <div className="discounts flex my-4 border-dashed border-b-2  pb-2 items-center justify-between gap-3">
-                            <span>Discounts:</span>{" "}
+                            <span>Discounts:</span>{" "} - 
                             {typeof discounts === "number"
                                 ? discounts.toFixed(2)
                                 : discounts}

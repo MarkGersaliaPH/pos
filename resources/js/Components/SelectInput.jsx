@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useRef } from "react";
 
-export default forwardRef(function TextInput(
-    { type = "text", className = "", isFocused = false, options, ...props },
+export default forwardRef(function SelectInput(
+    { type = "text", className = "", isFocused = false, options, textAsValue, ...props },
     ref
 ) {
     const input = ref ? ref : useRef();
@@ -27,7 +27,7 @@ export default forwardRef(function TextInput(
             </option>
             {options &&
                 options.map((item, key) => (
-                    <option value={item.id}>{item.name}</option>
+                    <option value={textAsValue? item.name :item.id}>{item.name}</option>
                 ))}
         </select>
     );

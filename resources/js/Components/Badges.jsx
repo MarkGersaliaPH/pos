@@ -7,9 +7,9 @@ export function GrayBadge({ children, className }) {
         </span>
     );
 }
-export function DangerBadge({ children }) {
+export function DangerBadge({ children,className}) {
     return (
-        <span className="inline-flex items-center rounded-md absolute bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+        <span className={`${className} inline-flex items-center rounded-md absolute bg-red-500 px-2 py-1 text-xs font-medium text-white ring-1 ring-inset ring-red-600/10`}>
             {children}
         </span>
     );

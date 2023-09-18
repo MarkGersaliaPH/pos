@@ -26,7 +26,7 @@ trait HasImageUpload
         });
 
         static::updating(function ($model) {
-            if (request()->hasFile('image')) {
+            if (request()->hasFile('image')) { 
                 // Delete old image
                 $model->clearMediaCollection('default');
                 // Add new image

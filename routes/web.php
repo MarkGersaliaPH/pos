@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\CashDrawerController;
 use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
+use Illuminate\Routing\RouteGroup;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -42,9 +44,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class);
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
-        Route::get('pos', [PosController::class, 'index'])->name('pos');
-        Route::get('pos/{id}', [PosController::class, 'show'])->name('pos.show');
-        Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+        // Route::prefix('pos')->group(function () { 
+        // Route::get('{id}', [PosController::class, 'show'])->name('pos.show');
+        // Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+        // });
+        Route::resource('pos',PosController::class)->only('show','store','index')->middleware('checkCashDrawer');
+
+        Route::resource('cash-drawer',CashDrawerController::class);
+        Route::get('receipt/generate_pdf/{id}', [PosController::class, 'generatePdf'])->name('order.generatepdf');
     });
 
 

@@ -16,13 +16,18 @@ import TextArea from "@/Components/TextArea";
 import TextInput from "@/Components/TextInput";
 import PosLayout from "@/Layouts/PosLayout";
 import { Link, router, useForm } from "@inertiajs/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaHome, FaTimes, FaTrash } from "react-icons/fa";
 import PaymentModalContent from "./PaymentModalContent";
 import axios from "axios";
 import Swal from "sweetalert2";
 import ReceiptModalContent from "./ReceiptModalContent";
 import CustomModal from "@/Components/CustomModal";
+import jsPDF from "jspdf";
+import Receipt from "./Receipt";
+import ReactToPrint from "react-to-print";
+import Authenticated from "@/Layouts/AuthenticatedLayout";
+import Pos from "@/Layouts/Pos";
 
 function Index({ auth, items }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -142,8 +147,8 @@ function Index({ auth, items }) {
     };
 
     useEffect(() => {
-        const totalWithTax = orderSubtotal + orderSubtotal * (taxes / 100);
-        const newGrandTotal = totalWithTax - totalWithTax * (discounts / 100);
+        const totalWithTax = orderSubtotal - taxes;
+        const newGrandTotal = totalWithTax - discounts;
         setGrandTotal(newGrandTotal);
     }, [orderSubtotal, taxes, discounts]);
 
@@ -204,17 +209,50 @@ function Index({ auth, items }) {
         printWindow.document.close();
         printWindow.print();
     }
+
+    const pdfViewerRef = useRef(null);
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text("Hello world!", 10, 10);
+
+        const pdfOutput = doc.output("datauristring");
+
+        // Use the output in the iframe
+        if (pdfViewerRef.current) {
+            pdfViewerRef.current.src = pdfOutput;
+        }
+
+        setShowIframe(true);
+    };
+
+    const [showIframe, setShowIframe] = useState(false);
+    const componentRef = useRef();
+
+    const receiptRef = useRef();
     return (
         <div>
-            <PosLayout
-                user={auth.user}
-                header={
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                        Create
-                    </h2>
-                }
-            >
-                <Modal show={showModal} maxWidth="5xl">
+            <Modal show={showModal} maxWidth="5xl">
+                <PaymentModalContent
+                    items={items}
+                    grandTotal={grandTotal}
+                    selectedProducts={selectedProducts}
+                    orderSubtotal={orderSubtotal}
+                    taxes={taxes}
+                    discounts={discounts}
+                    setShowModal={setShowModal}
+                    onChangeOrdersData={onChangeOrdersData}
+                    data={data}
+                    submitOrder={submitOrder}
+                    errors={errors}
+                />
+            </Modal>
+            <CustomModal show={showReceiptModal} title="POS Invoice">
+                <ReceiptModalContent data={receiptData} />
+            </CustomModal>
+
+            {/* <div id="receipt" style={{ display: "none" }}>
                     <PaymentModalContent
                         items={items}
                         grandTotal={grandTotal}
@@ -228,224 +266,172 @@ function Index({ auth, items }) {
                         submitOrder={submitOrder}
                         errors={errors}
                     />
-                </Modal>
+                </div> */}
 
-                <CustomModal show={showReceiptModal} title="POS Invoice">
-                    <ReceiptModalContent data={receiptData} />
-                </CustomModal>
+            <div class="flex">
+                <aside class="h-screen sticky top-0 bg-white w-1/2 dark:bg-gray-900 dark:border-slate-700 dark:border-r    shadow">
+                    <div className=" border-b dark:border-slate-700 flex justify-between py-5 px-3">
+                        <h1 className="font-bold dark:text-white">
+                            {app_name}
+                        </h1>
 
-                <div className="flex relative">
-                    <div className="fixed w-1/3   h-full">
-                        <Card className="  shadow-lg dark:border-slate-700 border">
-                            <CardHeader
-                                title={
-                                    <h1 className="font-bold ">
-                                        WELCOME TO POS
-                                    </h1>
-                                }
+                        <div className="mb-2">
+                            <Link
+                                className="text-blue-500  dark:text-white flex gap-1 text-xs items-center"
+                                href={route("dashboard")}
                             >
-                                <div className="mb-2">
-                                    <Link
-                                        className="text-blue-500 flex gap-1 text-xs items-center"
-                                        href={route("dashboard")}
-                                    >
-                                        <FaHome />
-                                        Back to home
-                                    </Link>
-                                </div>
-                            </CardHeader>
-                            <div className="mb-auto h-[200px]   overflow-auto text-xs">
-                                <table className="w-full ">
-                                    <thead>
-                                        <tr className="border-b text-xs dark:border-slate-700">
-                                            <td className="p-2 font-bold  text-slate-400">
-                                                PRODUCT
-                                            </td>
-                                            <td className="p-2 font-bold  text-slate-400">
-                                                QTY
-                                            </td>
-                                            <td className="p-2 font-bold  text-slate-400">
-                                                PRICE
-                                            </td>
-                                            <td className="p-2 font-bold  text-slate-400">
-                                                SUB TOTAL
-                                            </td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedProducts.length ? (
-                                            selectedProducts.map(
-                                                (item, key) => (
-                                                    <tr className="border-b dark:border-slate-700">
-                                                        <td className="p-2">
-                                                            {item.name}
-                                                        </td>
-                                                        <td className="p-2">
-                                                            <NumberInputWithCounter
-                                                                initialValue={
-                                                                    item.quantity
-                                                                }
-                                                                min={1}
-                                                                max={
-                                                                    item.stock_quantity
-                                                                }
-                                                                value={
-                                                                    item.quantity
-                                                                }
-                                                                onChange={(
-                                                                    value
-                                                                ) =>
-                                                                    handleQuantityChange(
-                                                                        item.id,
-                                                                        value
-                                                                    )
-                                                                }
-                                                                className="w-10"
-                                                            />
-                                                        </td>
-                                                        <td className="p-2">
-                                                            {item.price}
-                                                        </td>
-                                                        <td className="p-2 flex justify-between items-center pt-4">
-                                                            {item.sub_total}
-                                                            <FaTrash
-                                                                className="text-red-500 cursor-pointer"
-                                                                onClick={() =>
-                                                                    removeProduct(
-                                                                        item
-                                                                    )
-                                                                }
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            )
-                                        ) : (
-                                            <tr>
-                                                <td
-                                                    colSpan={4}
-                                                    className="p-2 text-center border-b"
-                                                >
-                                                    No Data Available
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                                <ul>
-                                    {/* {selectedItems &&
-                                    selectedItems.map((item, key) => (
-                                        <li className="p-5 hover:bg-gray-50 border-b text-black font-bold  ">
-                                            <div className=" align-middle mb-3 flex justify-between">
-                                                <span>
-                                                    {item.name} - {item.price}
-                                                </span>{" "}
-                                                <DangerButton>
-                                                    <FaTimes />
-                                                </DangerButton>
-                                            </div>
-                                            <div className="flex items-center justify-between gap-3">
+                                <FaHome />
+                                Back to home
+                            </Link>
+                        </div>
+                    </div>
+
+                    <div className="mb-auto max-h-[300px]   overflow-auto text-xs">
+                        <table className="w-full ">
+                            <thead>
+                                <tr className="border-b text-xs dark:border-slate-700">
+                                    <td className="p-2 font-bold  dark:text-slate-50">
+                                        PRODUCT
+                                    </td>
+                                    <td className="p-2 font-bold  dark:text-slate-50">
+                                        QTY
+                                    </td>
+                                    <td className="p-2 font-bold  dark:text-slate-50">
+                                        PRICE
+                                    </td>
+                                    <td className="p-2 font-bold  dark:text-slate-50">
+                                        SUB TOTAL
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {selectedProducts.length ? (
+                                    selectedProducts.map((item, key) => (
+                                        <tr className="border-b dark:border-slate-700">
+                                            <td className="p-2">{item.name}</td>
+                                            <td className="p-2">
                                                 <NumberInputWithCounter
-                                                    initialValue={5}
-                                                    min={0}
-                                                    max={10}
+                                                    initialValue={item.quantity}
+                                                    min={1}
+                                                    max={item.stock_quantity}
+                                                    value={item.quantity}
                                                     onChange={(value) =>
-                                                        console.log(value)
+                                                        handleQuantityChange(
+                                                            item.id,
+                                                            value
+                                                        )
+                                                    }
+                                                    className="w-10"
+                                                />
+                                            </td>
+                                            <td className="p-2">
+                                                {item.price}
+                                            </td>
+                                            <td className="p-2 flex justify-between items-center pt-4">
+                                                {item.sub_total}
+                                                <FaTrash
+                                                    className="text-red-500 cursor-pointer"
+                                                    onClick={() =>
+                                                        removeProduct(item)
                                                     }
                                                 />
-                                                <span className=" align-middle">
-                                                    100
-                                                </span>
-                                            </div>
-                                        </li>
-                                    ))} */}
-                                </ul>
-                            </div>
-                            <CardBody>
-                                <div className="totals-section my-5">
-                                    <div className="subtotal flex my-4 items-center justify-between gap-3">
-                                        <span>Subtotal:</span>{" "}
-                                        <span>{orderSubtotal.toFixed(2)}</span>
-                                    </div>
-                                    <div className="taxes flex my-4 items-center justify-between gap-3">
-                                        <span>Taxes:</span>{" "}
-                                        <span>
-                                            <TextInput
-                                                onChange={handleTaxChange}
-                                                type="text"
-                                                value={
-                                                    typeof taxes === "number"
-                                                        ? taxes.toFixed(2)
-                                                        : taxes
-                                                }
-                                            />
-                                        </span>
-                                    </div>
-                                    <div className="discounts flex my-4 items-center justify-between gap-3">
-                                        <span>Discounts:</span>{" "}
-                                        <TextInput
-                                            value={
-                                                typeof discounts === "number"
-                                                    ? discounts.toFixed(2)
-                                                    : discounts
-                                            }
-                                            onChange={handleDiscountChange}
-                                        />
-                                    </div>
-                                    <div className="grand-total flex my-4 items-center justify-between gap-3">
-                                        <span>Grand Total:</span>{" "}
-                                        <span className="text-[30px] font-bold text-black dark:text-white">
-                                            {grandTotal.toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex my-5 justify-center gap-5 ">
-                                    <DangerButton
-                                        onClick={() => setSelectedProducts([])}
-                                    >
-                                        Reset
-                                    </DangerButton>
-                                    <PrimaryButton
-                                        onClick={() => setShowModal(true)}
-                                    >
-                                        Pay Now
-                                    </PrimaryButton>
-                                </div>
-                            </CardBody>
-                        </Card>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan={4}
+                                            className="p-2 text-center border-b dark:border-slate-700"
+                                        >
+                                            No Data Available
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                        <ul></ul>
                     </div>
-                    <div className="w-2/3 ml-auto pl-10">
-                        <Card className="mb-5  shadow-lg border dark:border-slate-700 ">
-                            <CardBody>
-                                <SelectInput
-                                    id="name"
-                                    name="category_id"
-                                    value={data.category_id}
-                                    className="w-1/4"
-                                    autoComplete="category_id"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                    options={items.categories}
+
+                    <div className="totals-section my-5 px-5">
+                        <div className="subtotal flex my-4 items-center justify-between gap-3">
+                            <span>Subtotal:</span>{" "}
+                            <span>{orderSubtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="taxes flex my-4 items-center justify-between gap-3">
+                            <span>Taxes:</span>{" "}
+                            <span>
+                                <TextInput
+                                    onChange={handleTaxChange}
+                                    type="text"
+                                    value={
+                                        typeof taxes === "number"
+                                            ? taxes.toFixed(2)
+                                            : taxes
+                                    }
                                 />
-                                <SecondaryButton
-                                    href={route(
-                                        route().current(),
-                                        {},
-                                        { preserveState: true }
-                                    )}
-                                    className="ml-5"
-                                >
-                                    Clear
-                                </SecondaryButton>
-                            </CardBody>
-                        </Card>
+                            </span>
+                        </div>
+                        <div className="discounts flex my-4 items-center justify-between gap-3">
+                            <span>Discounts:</span>{" "}
+                            <TextInput
+                                value={
+                                    typeof discounts === "number"
+                                        ? discounts.toFixed(2)
+                                        : discounts
+                                } 
+                                onChange={handleDiscountChange}
+                            />
+                        </div>
+                        <div className="grand-total flex my-4 items-center justify-between gap-3">
+                            <span>Grand Total:</span>{" "}
+                            <span className="text-[30px] font-bold text-black dark:text-white">
+                                {grandTotal.toFixed(2)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="flex my-5 justify-center gap-5 ">
+                        <DangerButton onClick={() => setSelectedProducts([])}>
+                            Reset
+                        </DangerButton>
+                        <PrimaryButton onClick={() => setShowModal(true)}>
+                            Pay Now
+                        </PrimaryButton>
+                    </div>
+                </aside>
+
+                <main className="bg-blue-50  dark:bg-slate-900 w-full  ">
+                    <div className="fixed w-full px-2 border-b z-10 py-3 gap-2 flex bg-blue-500 dark:bg-slate-900  border-slate-300 dark:border-slate-700 ">
+                        <TextInput name="name" 
+                            className="w-1/4" placeholder="Search product.." />
+                        <SelectInput
+                            id="name"
+                            name="category_id"
+                            value={data.category_id}
+                            autoComplete="category_id"className="w-1/4"
+                            isFocused={true}
+                            onChange={handleChange}
+                            options={items.categories}
+                        />
+                        <SecondaryButton
+                            href={route(
+                                route().current(),
+                                {},
+                                { preserveState: true }
+                            )} 
+                        >
+                            Clear
+                        </SecondaryButton>
+                    </div> 
+                    <div className="ml-auto mt-20  pl-5 ">
                         <div className="flex flex-wrap justify-start   gap-2 overflow-auto">
                             {items.products ? (
                                 items.products.map((product, key) => (
                                     <Card
                                         className={`lg:w-1/6 sm:w-1/4 cursor-pointer ${
                                             isProductSelected(product)
-                                                ? "border border-red-500 dark:border-slate-400"
+                                                ? "border-2 border-red-500 dark:border-white"
                                                 : ""
                                         } `}
                                     >
@@ -455,21 +441,27 @@ function Index({ auth, items }) {
                                             }
                                         >
                                             <div className="flex justify-between relative">
-                                                <InfoBadge className="right-0 from-blue-300 to-blue-800">
+                                                {
+                                                    product.stock_quantity == 0 ?
+                                                        <DangerBadge className="right-0">Out of stock</DangerBadge>
+                                                    :
+ 
+                                                    <InfoBadge className="right-0 from-blue-300 to-blue-800">
                                                     {product.stock_quantity} pcs
                                                 </InfoBadge>
+                                                }
                                                 <PrimaryBadge>
                                                     {product.price}
                                                 </PrimaryBadge>
                                             </div>
                                             <img
-                                                className="rounded-t-lg w-full  "
+                                                className="rounded-t-lg w-full h-[100px] "
                                                 src={product.image_url}
                                                 alt=""
                                             />
-                                            <CardBody className="text-sm">
+                                            <CardBody className="text-sm dark:text-white ">
                                                 {product.name}
-                                                <span className="text-xs text-gray-400 block">
+                                                <span className="text-xs dark:text-slate-100 block">
                                                     {product.description}
                                                 </span>
                                             </CardBody>
@@ -483,8 +475,8 @@ function Index({ auth, items }) {
                             )}
                         </div>
                     </div>
-                </div>
-            </PosLayout>
+                </main>
+            </div>
         </div>
     );
 }
