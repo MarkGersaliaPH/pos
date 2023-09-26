@@ -29,6 +29,9 @@ abstract class CrudController extends Controller
         $items = $items->paginate($this->perPage);
         return Inertia::render($this->index, ['items' => $items]);
     }
+    protected function defaultFilter(){
+        return [];
+    }
 
     protected function withRelation()
     {
@@ -44,7 +47,7 @@ abstract class CrudController extends Controller
     public function store(Request $request)
     {
 
-        $this->validate($request, $this->validationRules());
+        $this->validate($request, $this->validationRules()); 
         DB::beginTransaction();
         try {
             // dd($request->all());
@@ -80,10 +83,17 @@ abstract class CrudController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $item = $this->model->findOrFail($id);
-            $item->touch();
-
+            $item = $this->model->findOrFail($id); 
             $requestData = $request->only($this->model->getFillable());
+        
+            if (request()->hasFile('image')) {  
+                $file = $request->file('image');
+                $originalFilename = $file->getClientOriginalName();
+                if($originalFilename != "blob"){ 
+                    $item->touch();
+                }
+
+            }
             $item->update($requestData);
         } catch (\Exception $e) {
             //throw $th;
