@@ -54,6 +54,10 @@ function Form({ auth, item, additionalItem }) {
         );
     };
 
+    const booleanValue = (value) => {
+        value === "on" ? true : Boolean(value);
+    };
+
     return (
         <div>
             <Authenticated
@@ -114,7 +118,7 @@ function Form({ auth, item, additionalItem }) {
                                 <Toggle
                                     name="is_active"
                                     onChange={handleChange}
-                                    checked={data.is_active || true}
+                                    checked={data.is_active}
                                 />
                                 ,
                             </div>
@@ -155,7 +159,6 @@ function Form({ auth, item, additionalItem }) {
                                     className="mt-2"
                                 />
                             </div>
-                            
 
                             <div className="mt-4">
                                 <InputLabel htmlFor="name" value="Quantity" />

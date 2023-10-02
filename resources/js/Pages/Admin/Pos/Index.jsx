@@ -68,35 +68,44 @@ function Index({ auth, items }) {
     let [ordersData, setOrdersData] = useState({});
 
     const handleCardClick = (product) => {
-        const existingProduct = selectedProducts.find(
-            (item) => item.id === product.id
-        );
-
-        if (!existingProduct) {
-            // The product isn't in the list, so we add a new entry
-            const newProduct = {
-                id: product.id,
-                name: product.name,
-                quantity: 1,
-                price: product.price,
-                sub_total: product.price, // Initial sub_total is just the product price since quantity is 1
-                max: product.stock_quantity,
-            };
-            setSelectedProducts([...selectedProducts, newProduct]);
-        } else {
-            // The product is already in the list, so we update its quantity and sub_total
-            const updatedProducts = selectedProducts.map((item) => {
-                if (item.id === product.id) {
-                    const newQuantity = item.quantity + 1;
-                    return {
-                        ...item,
-                        quantity: newQuantity,
-                        sub_total: newQuantity * item.price,
-                    };
-                }
-                return item; // Return the item unchanged if it's not the one we're updating
+        if (product.stock_quantity <= 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "This item is out of stock",
+                // footer: '<a href="">Why do I have this issue?</a>',
             });
-            setSelectedProducts(updatedProducts);
+        } else {
+            const existingProduct = selectedProducts.find(
+                (item) => item.id === product.id
+            );
+
+            if (!existingProduct) {
+                // The product isn't in the list, so we add a new entry
+                const newProduct = {
+                    id: product.id,
+                    name: product.name,
+                    quantity: 1,
+                    price: product.price,
+                    sub_total: product.price, // Initial sub_total is just the product price since quantity is 1
+                    max: product.stock_quantity,
+                };
+                setSelectedProducts([...selectedProducts, newProduct]);
+            } else {
+                // The product is already in the list, so we update its quantity and sub_total
+                const updatedProducts = selectedProducts.map((item) => {
+                    if (item.id === product.id) {
+                        const newQuantity = item.quantity + 1;
+                        return {
+                            ...item,
+                            quantity: newQuantity,
+                            sub_total: newQuantity * item.price,
+                        };
+                    }
+                    return item; // Return the item unchanged if it's not the one we're updating
+                });
+                setSelectedProducts(updatedProducts);
+            }
         }
     };
 
@@ -179,9 +188,18 @@ function Index({ auth, items }) {
             .post(route(baseUrl + "store"), data)
             .then(function (response) {
                 clearDatas();
-                setShowModal(false);
-                setShowReceiptModal(true);
-                setReceiptData(response.data.receipt_data);
+                // setShowModal(false);
+                // setShowReceiptModal(true);
+                // setReceiptData(response.data.receipt_data);
+
+                window.open(
+                    route(
+                        "admin.order.generatepdf",
+                        response.data.receipt_data.id
+                    ),
+                    "_blank"
+                );
+                location.reload();
             })
             .catch(function (error) {
                 console.log("error", error.response.data.errors.payment_method);
@@ -379,7 +397,7 @@ function Index({ auth, items }) {
                                     typeof discounts === "number"
                                         ? discounts.toFixed(2)
                                         : discounts
-                                } 
+                                }
                                 onChange={handleDiscountChange}
                             />
                         </div>
@@ -403,13 +421,17 @@ function Index({ auth, items }) {
 
                 <main className="bg-blue-50  dark:bg-slate-900 w-full  ">
                     <div className="fixed w-full px-2 border-b z-10 py-3 gap-2 flex bg-blue-500 dark:bg-slate-900  border-slate-300 dark:border-slate-700 ">
-                        <TextInput name="name" 
-                            className="w-1/4" placeholder="Search product.." />
+                        <TextInput
+                            name="name"
+                            className="w-1/4"
+                            placeholder="Search product.."
+                        />
                         <SelectInput
                             id="name"
                             name="category_id"
                             value={data.category_id}
-                            autoComplete="category_id"className="w-1/4"
+                            autoComplete="category_id"
+                            className="w-1/4"
                             isFocused={true}
                             onChange={handleChange}
                             options={items.categories}
@@ -419,17 +441,17 @@ function Index({ auth, items }) {
                                 route().current(),
                                 {},
                                 { preserveState: true }
-                            )} 
+                            )}
                         >
                             Clear
                         </SecondaryButton>
-                    </div> 
-                    <div className="ml-auto mt-20  pl-5 ">
-                        <div className="flex flex-wrap justify-start   gap-2 overflow-auto">
+                    </div>
+                    <div className="ml-auto mt-20  pl-5 pb-10 ">
+                        <div className="flex flex-wrap   gap-3 overflow-auto">
                             {items.products ? (
                                 items.products.map((product, key) => (
                                     <Card
-                                        className={`lg:w-1/6 sm:w-1/4 cursor-pointer ${
+                                        className={`lg:w-[15%] sm:w-1/4 cursor-pointer ${
                                             isProductSelected(product)
                                                 ? "border-2 border-red-500 dark:border-white"
                                                 : ""
@@ -441,16 +463,17 @@ function Index({ auth, items }) {
                                             }
                                         >
                                             <div className="flex justify-between relative">
-                                                {
-                                                    product.stock_quantity == 0 ?
-                                                        <DangerBadge className="right-0">Out of stock</DangerBadge>
-                                                    :
- 
-                                                    <InfoBadge className="right-0 from-blue-300 to-blue-800">
-                                                    {product.stock_quantity} pcs
-                                                </InfoBadge>
-                                                }
-                                                <PrimaryBadge>
+                                                {product.stock_quantity <= 0 ? (
+                                                    <DangerBadge className="right-0 inline-flex  absolute ">
+                                                        Out of stock
+                                                    </DangerBadge>
+                                                ) : (
+                                                    <InfoBadge className="right-0 absolute inline-flex from-blue-300 to-blue-800">
+                                                        {product.stock_quantity}{" "}
+                                                        pcs
+                                                    </InfoBadge>
+                                                )}
+                                                <PrimaryBadge className="inline-flex absolute">
                                                     {product.price}
                                                 </PrimaryBadge>
                                             </div>

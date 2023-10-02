@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CashDrawer;
+use App\Models\CashlessBalance;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -26,40 +28,56 @@ class PosController extends Controller
         $data['products'] = Product::when($category_id, function ($query, $category_id) {
             return $query->where('category_id', $category_id);
         })->where('is_active', 1)->get();
-        return Inertia::render('Admin/Pos/Index', ['items' => $data]);
+        return Inertia::render('Admi    n/Pos/Index', ['items' => $data]);
     }
 
     public function store(Request $request)
     {
 
+        $activeDrawer = CashDrawer::with('cashless_balances')->active()->first();
+
         $this->validate($request, $this->validationRules($request));
 
         $model = new Order;
-        // DB::beginTransaction();
+        DB::beginTransaction();
         try {
 
             $requestData = $request->only($model->getFillable());
             $requestData['order_id'] = $this->generateUniqueOrderId();
             $requestData['user_id'] = auth()->id();
             $requestData['order_status'] = 1;
+            $requestData['cash_drawer_id'] = $activeDrawer->id; 
 
             $model->fill($requestData);
             $model->save();
 
-
             $this->saveorder_items($request->products, $model->id);
 
+            if ($requestData['payment_method'] != 1) {
+                $this->addToCashLessAmount($requestData, $model, $activeDrawer);
+            } else {
+                $activeDrawer->addToCurrentAmount($request->total_amount);
+            }
 
             $model->load(['order_items', 'order_items.product', 'payment_method']);
 
+            DB::commit();
 
             return response()->json(['message' => 'Success', 'receipt_data' => $model]);
-            // DB::commit();
         } catch (\Exception $e) {
             dd($e);
             //throw $th;
-            // DB::rollBack();
+            DB::rollBack();
         }
+    }
+
+    public function addToCashLessAmount($request, $model, $activeDrawer)
+    {
+        $payment_method = PaymentMethod::find($request['payment_method']);
+        $cashlessBalance = CashlessBalance::where('cash_drawer_id', $activeDrawer->id)->where('type', $payment_method->name)->first();
+        $cashlessBalance->addToCurrentAmount($request['total_amount']);
+        // dd($activeDrawer->cashless_balances()->where('type', $payment_method->name))->first();
+        // dd($request, $model, );
     }
 
     public function saveorder_items($products, $id)
@@ -76,9 +94,7 @@ class PosController extends Controller
 
             $item  = $order_item->product; 
             $item->stock_quantity = $item->stock_quantity - $product['quantity'];
-            $item->save();
- 
-
+            $item->save(); 
         }
     }
 
@@ -86,8 +102,7 @@ class PosController extends Controller
     function generateUniqueOrderId()
     {
         $timestamp = now()->format('YmdHis'); // This gives us a YYYYMMDDHHMMSS format
-        $randomString = Str::upper(Str::random(6)); // A random 6-character string
-
+        $randomString = Str::upper(Str::random(6)); // A random 6-character string 
         return $timestamp . $randomString;
     }
 
@@ -109,10 +124,17 @@ class PosController extends Controller
     }
 
     public function generatepdf($id)
-    {
-
+    { 
         $data = Order::with('order_items', 'order_items.product', 'payment_method')->find($id);
         $pdf = Pdf::loadView('receipt', ['data' => $data->toArray()]);
+
+
+        // Set paper size and orientation for a receipt (adjust dimensions as needed)
+        $pdf->setPaper('58mm', 'auto'); // Example: $pdf->setPaper('80mm', '210mm');
+
+        // Render the PDF (stream or save as needed)
+        $pdf->render();
+
 
         return $pdf->stream('receipt.pdf');
     }

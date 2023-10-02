@@ -10,7 +10,11 @@ import { Head, usePage } from "@inertiajs/react";
 import React from "react";
 
 function Index({ auth, items }) {
-    const headers = ["Name", "Price", "Category", "SKU", "Stock", "Is Active"];
+    const booleanValue = (value) => {
+        value === "on" ? true : Boolean(value);
+    };
+
+    const headers = ["Name", "Price", "Category", "Stock", "Is Active"];
     const body = items.data.map((data) => ({
         id: data.id, // the user's ID
         data: [
@@ -19,7 +23,6 @@ function Index({ auth, items }) {
             </span>,
             data.price,
             data.category.name,
-            data.sku,
             data.stock_quantity,
             <Toggle checked={data.is_active} />,
             // data.is_active,
@@ -48,9 +51,8 @@ function Index({ auth, items }) {
                             Create
                         </PrimaryButton>
                     </CardHeader>
-                        <Pagination items={items} />
-                    <Table headers={headers} body={body} actions={actions} /> 
-                        <Pagination items={items} />
+                    <Table headers={headers} body={body} actions={actions} />
+                    <Pagination items={items} />
                 </Card>
             </Authenticated>
         </div>

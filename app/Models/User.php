@@ -50,4 +50,8 @@ class User extends Authenticatable implements HasMedia
     public function cash_drawer(){
         return $this->hasOne(CashDrawer::class);
     }
+    public function cash_drawer_logs()
+    {
+        return $this->hasOne(CashDrawerLog::class);
+    }
 }

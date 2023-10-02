@@ -7,6 +7,18 @@
     <title>Receipt</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <style>
+        @font-face {
+          font-family: 'Courier';
+          font-weight: normal;
+          font-style: normal;
+          font-variant: normal;
+          src: url("http://eclecticgeek.com/dompdf/fonts/Courier.ttf") format("truetype");
+        }
+        body {
+          font-family: Elegance, sans-serif;
+        }
+        </style>
 </head>
 <body> 
     <div style="width: 100%;">
@@ -29,9 +41,9 @@
                     <div style="border-bottom: 2px dotted gray;">
                         <div style="display: flex; justify-content: space-between; border: none;">
                             <span style="margin-right: 1rem;">
-                                {{$item['quantity']}} Pc X {{$item['price']}}
+                                {{$item['quantity']}}pc X {{$item['price']}}
                             </span>
-                            <span style="text-align: right;">
+                            <span style="float: right;">
                                 {{$item['total']}}
                             </span>
                         </div>
@@ -39,35 +51,35 @@
                 </div>
             @endforeach 
         </div>
-        <div style="display: flex; border-bottom: 2px dotted gray;">
-            <div style="font-weight: bold;">Total Amount:</div>
-            <div style="text-align: right; margin-left: auto;">
+        <div style="border-bottom: 2px dotted gray;">
+            <span style="font-weight: bold;">Total Amount:</span>
+            <span style="float: right;">
                 {{$data['subtotal_amount']}}
-            </div>
+            </span>
         </div>
         <div style="display: flex; border-bottom: 2px dotted gray;">
-            <div style="font-weight: bold;">Order Tax:</div>
-            <div style="text-align: right; margin-left: auto;">
+            <span style="font-weight: bold;">Order Tax:</span>
+            <span style="float:right;">
                 {{$data['tax_amount']}}
-            </div>
+            </span>
         </div>
         <div style="display: flex; border-bottom: 2px dotted gray;">
-            <div style="font-weight: bold;">Discount:</div>
-            <div style="text-align: right; margin-left: auto;">
+            <span style="font-weight: bold;">Discount:</span>
+            <span style="float:right;">
                 {{$data['discount_amount']}}
-            </div>
+            </span>
         </div>
         <div style="display: flex; border-bottom: 2px dotted gray;">
-            <div style="font-weight: bold;">Grand Total:</div>
-            <div style="text-align: right; margin-left: auto;">
+            <span style="font-weight: bold;">Grand Total:</span>
+            <span style="float:right;">
                 {{$data['total_amount']}}
-            </div>
+            </span>
         </div>
         <div style="display: flex; border-bottom: 2px dotted gray;">
-            <div style="font-weight: bold;">Notes:</div>
-            <div style="text-align: right; margin-left: auto;">
+            <span style="font-weight: bold;">Notes:</span>
+            <span style="float:right;">
                 {{$data['notes']}}
-            </div>
+            </span>
         </div>
         <table style="margin-bottom: 0; width: 100%;">
             <thead>

@@ -1,46 +1,46 @@
+import { SuccessBadge } from "@/Components/Badges";
 import Card, { CardBody, CardHeader } from "@/Components/Card";
-import DangerButton from "@/Components/DangerButton";
-import PrimaryButton from "@/Components/PrimaryButton";
-import SecondaryButton from "@/Components/SecondaryButton";
-import Tabs from "@/Components/Tabs";
-import Authenticated from "@/Layouts/AuthenticatedLayout"; 
-import React from "react";
+import Pagination from "@/Components/Pagination";
 
-function Index({ auth, item, additionalItem }) {
-    const tabs = [
-        {
-            name: "Today Cash",
-            content: <div> 
-                <div className="p-5  text-xl">
-                <div>
-                    <h1>Cash Drawer Opened At:</h1>
-                    {item.opened_at}
-                </div>
-                <div className="pt-5 mt-5 border-t">
-                    <h1>Cash Drawer Opened By:</h1>
-                    {item.cashier.name}
-                </div>
-                <div className="pt-5 mt-5 border-t">
-                    <h1>Opening Balance</h1>
-                    {item.opening_balance}
-                </div>
-                <div className="pt-5 mt-5 border-t">
-                    <h1>Total Sales</h1>
-                    {item.sales_total}
-                </div>
-                <div className="pt-5 mt-5 border-t">
-                    <h1>Expected Balance</h1>
-                    <span className="text-red-500">{item.expected_balance}</span>
-                </div>
-                </div> </div>
-        },
-        {
-            name: "History Logs",
-            content: <div>Content for Tab 2</div>
-        }
-        // ... add as many tabs as you need
+import PrimaryButton from "@/Components/PrimaryButton";
+import Table from "@/Components/Table";
+import Authenticated from "@/Layouts/AuthenticatedLayout";
+import { Link } from "@inertiajs/react";
+import React, { useState } from "react";
+
+function Index({ auth, items, additionalItem }) {
+    const headers = [
+        "Date Opened",
+        "Status",
+        "Cashier",
+        "Opening Balance",
+        "Sales",
+        "Date Closed",
     ];
 
+    const statusDisplay = (status) => {
+        if (status == "Active") {
+            return <SuccessBadge>{status}</SuccessBadge>;
+        }
+    };
+    const body = items.data.map((data) => ({
+        id: data.id, // the user's ID
+        data: [
+            <Link
+                className="text-blue-500"
+                href={route("admin.cash-drawer.show", data.id)}
+            >
+                {data.opened_at} ({data.operation_hours})
+            </Link>,
+            statusDisplay(data.status),
+            data.cashier.name,
+            data.opening_balance,
+            // data.closing_balance,
+            data.sales_total,
+            // data.expected_balance,
+            data.closed_at,
+        ], // the actual row data
+    }));
 
     return (
         <Authenticated
@@ -51,13 +51,15 @@ function Index({ auth, item, additionalItem }) {
                 </h2>
             }
         >
-            <Tabs tabs={tabs} />
-            <div className="my-10 flex gap-5 justify-center">
-                <PrimaryButton>Cash In Amount</PrimaryButton>
-                <SecondaryButton className="bg-green-500 text-white">Cash Out Amount</SecondaryButton>
-                <DangerButton>Close The Cash Drawer/Stop Selling</DangerButton>
-            </div>
-          
+            <Card>
+                <CardHeader title={"Cash Drawers"}>
+                    <PrimaryButton href={route("admin.cash-drawer.create")}>
+                        Create
+                    </PrimaryButton>
+                </CardHeader>
+                <Table headers={headers} body={body} />
+                <Pagination items={items} />
+            </Card>
         </Authenticated>
     );
 }

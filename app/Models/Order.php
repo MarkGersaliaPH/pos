@@ -24,6 +24,7 @@ class Order extends Model
         'shipping_fee',
         'notes',
         'order_type',
+        'cash_drawer_id'
     ];
 
 
@@ -43,9 +44,18 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    public function cashier()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function payment_method()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method', 'id');
+    }
+
+    public function scopeWhereCreatedAtBetween($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 }

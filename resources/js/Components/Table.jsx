@@ -6,7 +6,6 @@ import SecondaryButton from "./SecondaryButton";
 import Swal from "sweetalert2";
 
 function Table({ headers, body, actions, fromNumber = 1 }) {
-    console.log(fromNumber);
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -31,7 +30,7 @@ function Table({ headers, body, actions, fromNumber = 1 }) {
         });
     };
     return (
-        <div>
+        <div className="w-full overflow-y-auto">
             <table className="items-center justify-center w-full mb-0 align-top border-collapse dark:bg-slate-800 dark:border-white/40 text-slate-500">
                 <thead className="align-bottom dark:border-slate-700">
                     <tr className="bg-gray-100 dark:bg-slate-800   dark:border-slate-700 ">

@@ -22,7 +22,7 @@ class CheckCashDrawer
         // Assuming each user belongs to a specific branch; adjust the logic as needed
         $branchId = $user->branch_id;
 
-        $hasCashDrawerEntryToday = CashDrawer::whereDate('created_at', now()->toDateString())
+        $hasCashDrawerEntryToday = CashDrawer::active()
             ->exists();
             // $hasCashDrawerEntryToday = CashDrawer::where('branch_id', $branchId)
             //     ->whereDate('created_at', now()->toDateString())
@@ -30,7 +30,7 @@ class CheckCashDrawer
 
         if (!$hasCashDrawerEntryToday) {
             // Store a session flash message 
-            return back()->with('message','Please set the opening balance for the day before proceeding.');
+            return back()->with('message', 'No active cash drawer detected. Please configure the cash drawer before proceeding.');
             // Optionally, you can redirect the user to the page where they set the opening balance
             // return redirect()->route('setOpeningBalanceRoute');
         }

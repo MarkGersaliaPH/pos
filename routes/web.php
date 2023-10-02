@@ -49,8 +49,14 @@ Route::middleware('auth')->group(function () {
         // Route::post('pos', [PosController::class, 'store'])->name('pos.store');
         // });
         Route::resource('pos',PosController::class)->only('show','store','index')->middleware('checkCashDrawer');
+        Route::prefix('cash-drawer')->name('cash-drawer.')->group(function () {
+            Route::get('sales/{cash_drawer_id}', [CashDrawerController::class, 'sales'])->name('sales');
+            Route::get('logs/{cash_drawer_id}', [CashDrawerController::class, 'logs'])->name('logs');
+            Route::post('cash_in_and_out/{cash_drawer_id}', [CashDrawerController::class, 'cashInAndOut'])->name('cash_in_and_out');
+        });
 
         Route::resource('cash-drawer',CashDrawerController::class);
+       
         Route::get('receipt/generate_pdf/{id}', [PosController::class, 'generatePdf'])->name('order.generatepdf');
     });
 
