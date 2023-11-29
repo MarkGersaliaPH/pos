@@ -1,4 +1,4 @@
-import { SuccessBadge } from "@/Components/Badges";
+import { DangerBadge, SuccessBadge } from "@/Components/Badges";
 import Card, { CardBody, CardHeader } from "@/Components/Card";
 import Pagination from "@/Components/Pagination";
 
@@ -21,6 +21,9 @@ function Index({ auth, items, additionalItem }) {
     const statusDisplay = (status) => {
         if (status == "Active") {
             return <SuccessBadge>{status}</SuccessBadge>;
+        }else{
+            
+            return <DangerBadge>{status}</DangerBadge>;
         }
     };
     const body = items.data.map((data) => ({

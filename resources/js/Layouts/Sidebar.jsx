@@ -61,6 +61,25 @@ function Sidebar() {
         },
 
         {
+            name: "Inventory Management",
+            icon: <FcPackage className="text-blue-400 text-lg" />,
+            child: [
+                {
+                    name: "Items",
+                    route: "admin.inventories.index",
+                    key: "inventories",
+                    icon: <FcPackage className="text-blue-400 text-lg" />,
+                }, 
+                {
+                    name: "Categories",
+                    route: "admin.inventory-categories.index",
+                    key: "inventory-categories",
+                    icon: <FcList className="text-blue-400 text-lg" />,
+                },
+            ],
+        },
+
+        {
             name: "Users Management",
             key: "users",
             icon: <FcConferenceCall className="text-blue-400 text-lg" />,
@@ -84,6 +103,10 @@ function Sidebar() {
             ],
         },
     ];
+
+    const getTheKeyOnRoute = (text) =>{
+        return text.replace('admin.','').replace('.index','')
+    }
 
     return (
         <div>
@@ -143,10 +166,8 @@ function Sidebar() {
                                         <NavLink
                                             href={
                                                 menu.route && route(menu.route)
-                                            }
-                                            active={route()
-                                                .current()
-                                                .includes(menu.key)}
+                                            } 
+                                            active={getTheKeyOnRoute(route().current()) == menu.key}
                                         >
                                             <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
                                                 {menu.icon}
@@ -187,10 +208,8 @@ function Sidebar() {
                                                     child.route &&
                                                     route(child.route)
                                                 }
-                                                active={route()
-                                                    .current()
-                                                    .includes(child.key)} // Use child.key here
-                                            >
+                                                active={getTheKeyOnRoute(route().current()) == child.key && route().current().includes(child.key)} // Use child.key here
+                                            > 
                                                 <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
                                                     {child.icon}
                                                 </div>

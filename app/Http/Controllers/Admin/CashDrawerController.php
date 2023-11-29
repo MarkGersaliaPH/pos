@@ -27,11 +27,9 @@ class CashDrawerController extends CrudController
     protected $form = 'Admin/CashDrawer/Form';
     protected $show = 'Admin/CashDrawer/Show';
 
-    public function defaultOrder()
+    public function defaultOrder($query)
     {
-        return function ($query) {
-            $query->last();
-        };
+       return $query->latest();
     }
     
     protected function withRelation()
@@ -83,12 +81,16 @@ class CashDrawerController extends CrudController
 
     public function cashInAndOut(Request $request)
     {
-        $activeDrawer = $this->getActiveDrawer();
+        $activeDrawer = $this->getActiveDrawer(); 
 
         if (
             $request->type == "cash_out"
         ) {
             $activeDrawer->cashOutAmount($request->amount);
+            if($request->is_expense){
+                $activeDrawer->expenses += $request->amount; 
+                $activeDrawer->save();
+            }
         } else {
             $activeDrawer->cashInAmount($request->amount);
         }
@@ -98,7 +100,7 @@ class CashDrawerController extends CrudController
                 'cash_drawer_id' => $request->cash_drawer_id,
                 'action' => $request->type,
                 'amount' => $request->amount,
-                'notes' => $request->reason,
+                'notes' => "Expense ".$request->reason,
                 'user_id' => auth()->id()
             ]
         );

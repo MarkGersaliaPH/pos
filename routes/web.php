@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\PosController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\InventoryCategoryController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Routing\RouteGroup;
@@ -44,6 +46,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class);
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
+        
+        Route::resource('inventories', InventoryController::class);
+        Route::resource('inventory-categories', InventoryCategoryController::class);
         // Route::prefix('pos')->group(function () { 
         // Route::get('{id}', [PosController::class, 'show'])->name('pos.show');
         // Route::post('pos', [PosController::class, 'store'])->name('pos.store');

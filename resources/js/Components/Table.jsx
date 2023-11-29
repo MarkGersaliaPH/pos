@@ -5,7 +5,7 @@ import { router } from "@inertiajs/react";
 import SecondaryButton from "./SecondaryButton";
 import Swal from "sweetalert2";
 
-function Table({ headers, body, actions, fromNumber = 1 }) {
+function Table({ headers, body, actions, additional_action,fromNumber = 1 }) {
     const handleDelete = (id) => {
         Swal.fire({
             title: "Are you sure?",
@@ -93,6 +93,9 @@ function Table({ headers, body, actions, fromNumber = 1 }) {
                                             Delete
                                         </DangerButton>
                                     )}
+                                    {additional_action &&
+                                        additional_action
+                                    }
                                 </td>
                             )}
                         </tr>

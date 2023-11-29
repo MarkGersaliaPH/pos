@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Receipt</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
+ 
+    
     <style>
         @font-face {
           font-family: 'Courier';
@@ -19,6 +20,10 @@
           font-family: Elegance, sans-serif;
         }
         </style>
+
+        <script>
+            this.print()
+        </script>
 </head>
 <body> 
     <div style="width: 100%;">
@@ -85,9 +90,12 @@
             <thead>
                 <tr style="border-bottom: 1px solid gray;">
                     <th style="padding: 0.5rem 0;">Paid By</th>
+                    <th style="text-align: right; padding: 0.5rem 0;">
+                        Cashier
+                    </th>
                     <th style="text-align: right; padding: 0.5rem 0;">Amount</th>
                     <th style="text-align: right; padding: 0.5rem 0;">
-                        Change Return
+                        Change/Return
                     </th>
                 </tr>
             </thead>
@@ -95,6 +103,9 @@
                 <tr>
                     <td style="padding: 0.5rem 0;">
                         {{$data['payment_method']['name']}}
+                    </td>
+                    <td style="text-align: right; padding: 0.5rem 0;">
+                        {{$data['cashier']['name']}}
                     </td>
                     <td style="text-align: right; padding: 0.5rem 0;">
                         {{$data['payment_recieved']}}
@@ -114,4 +125,5 @@
 </div>
 
 </body>
+
 </html>

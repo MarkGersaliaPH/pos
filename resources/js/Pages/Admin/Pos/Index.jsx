@@ -28,6 +28,8 @@ import Receipt from "./Receipt";
 import ReactToPrint from "react-to-print";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import Pos from "@/Layouts/Pos";
+import { FcBullish, FcCustomerSupport, FcHome, FcMoneyTransfer, FcPackage } from "react-icons/fc";
+import Tooltip from "@/Components/Tooltip";
 
 function Index({ auth, items }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -188,23 +190,53 @@ function Index({ auth, items }) {
             .post(route(baseUrl + "store"), data)
             .then(function (response) {
                 clearDatas();
-                // setShowModal(false);
+                setShowModal(false);
                 // setShowReceiptModal(true);
                 // setReceiptData(response.data.receipt_data);
+                const pdfUrl =  route(
+                            "admin.order.generatepdf",
+                            response.data.receipt_data.id
+                        );
+  
+                popupCenter({url:pdfUrl, title: 'xtf', w: 400, h: 1000});  
 
-                window.open(
-                    route(
-                        "admin.order.generatepdf",
-                        response.data.receipt_data.id
-                    ),
-                    "_blank"
-                );
-                location.reload();
+                // window.open(
+                //     route(
+                //         "admin.order.generatepdf",
+                //         response.data.receipt_data.id
+                //     ),
+                //     "_blank"
+                // );
+                // location.reload();
             })
             .catch(function (error) {
                 console.log("error", error.response.data.errors.payment_method);
             });
     };
+
+    const popupCenter = ({url, title, w, h}) => {
+        // Fixes dual-screen position                             Most browsers      Firefox
+        const dualScreenLeft = window.screenLeft !==  undefined ? window.screenLeft : window.screenX;
+        const dualScreenTop = window.screenTop !==  undefined   ? window.screenTop  : window.screenY;
+    
+        const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+    
+        const systemZoom = width / window.screen.availWidth;
+        const left = (width - w) / 2 / systemZoom + dualScreenLeft
+        const top = (height - h) / 2 / systemZoom + dualScreenTop
+        const newWindow = window.open(url, title, 
+          `
+          scrollbars=yes,
+          width=${w / systemZoom}, 
+          height=${h / systemZoom}, 
+          top=${top}, 
+          left=${left}
+          `
+        )
+    
+        if (window.focus) newWindow.focus();
+    }
 
     const clearDatas = () => {
         setSelectedProducts([]);
@@ -288,18 +320,34 @@ function Index({ auth, items }) {
 
             <div class="flex">
                 <aside class="h-screen sticky top-0 bg-white w-1/2 dark:bg-gray-900 dark:border-slate-700 dark:border-r    shadow">
-                    <div className=" border-b dark:border-slate-700 flex justify-between py-5 px-3">
-                        <h1 className="font-bold dark:text-white">
-                            {app_name}
+                    <div className=" border-b dark:border-slate-700 flex justify-between pt-2 items-center px-3">
+                        <h1 className="font-bold dark:text-white text-blue-500">
+                            {/* {app_name} */}
+                            {auth.user.name}
                         </h1>
 
-                        <div className="mb-2">
+                        <div className="mb-2 flex gap-2 align-middle py-3 items-center">
                             <Link
-                                className="text-blue-500  dark:text-white flex gap-1 text-xs items-center"
+                                className="text-blue-500 p-2 border rounded  dark:text-white flex gap-1 text-xs items-center"
                                 href={route("dashboard")}
                             >
-                                <FaHome />
-                                Back to home
+                                
+                            <Tooltip content="Dashboard"><FcHome className=" text-lg" /></Tooltip> 
+                            </Link>
+                            <Link
+                                className="text-blue-500  p-2 border rounded  dark:text-white flex gap-1 text-xs items-center"
+                                href={route("admin.cash-drawer.index")}
+                            >
+                            <Tooltip content="Drawer">
+                                <FcMoneyTransfer className=" text-lg"  /> </Tooltip>
+                            </Link>
+                            <Link
+                                className="text-blue-500  p-2 border rounded  dark:text-white flex gap-1 text-xs items-center"
+                                href={route("admin.products.index")}
+                            >
+                            <Tooltip content="Products"> 
+                                <FcPackage className="text-blue-400 text-lg" />
+                                 </Tooltip>
                             </Link>
                         </div>
                     </div>
@@ -409,7 +457,9 @@ function Index({ auth, items }) {
                         </div>
                     </div>
 
-                    <div className="flex my-5 justify-center gap-5 ">
+                    {
+                        selectedProducts.length ? 
+                        <div className="flex my-5 justify-center gap-5 ">
                         <DangerButton onClick={() => setSelectedProducts([])}>
                             Reset
                         </DangerButton>
@@ -417,6 +467,8 @@ function Index({ auth, items }) {
                             Pay Now
                         </PrimaryButton>
                     </div>
+                        : null
+                    }
                 </aside>
 
                 <main className="bg-blue-50  dark:bg-slate-900 w-full  ">

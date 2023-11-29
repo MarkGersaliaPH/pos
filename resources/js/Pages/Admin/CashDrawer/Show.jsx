@@ -1,4 +1,5 @@
 import Card, { CardBody, CardHeader } from "@/Components/Card";
+import Checkbox from "@/Components/Checkbox";
 import CustomModal from "@/Components/CustomModal";
 import DangerButton from "@/Components/DangerButton";
 import InputError from "@/Components/InputError";
@@ -45,6 +46,7 @@ function Index({ auth, item, additionalItem }) {
 
     const submit = () => {
         if (data.id) {
+            console.log(data)
             data._method = "put";
             post(route(baseUrl + "update", data.id), {
                 onSuccess: () => {
@@ -71,7 +73,7 @@ function Index({ auth, item, additionalItem }) {
 
     let handleCashInCashoutChange = (e) => {
         let updatedData = { ...cashInCashoutData };
-        updatedData[e.target.name] = e.target.value;
+        updatedData[e.target.name] = e.target.type == "checkbox" ? e.target.checked : e.target.value;
         setCashInCashoutData(updatedData);
     };
 
@@ -215,6 +217,15 @@ function Index({ auth, item, additionalItem }) {
                     <InputError message={errors.amount} className="mt-2" />
                 </div>
 
+
+                <div className="flex items-center my-5">
+                    <InputLabel htmlFor="name" value="Is Expenses:" />
+                  <Checkbox name="is_expense" onChange={handleCashInCashoutChange} className="ml-3 cursor-pointer" />
+                    <InputError message={errors.amount} className="mt-2" />
+                </div>
+
+
+
                 <div className="mt-5">
                     <InputLabel htmlFor="name" value="Reason:" />
                     <TextArea
@@ -255,16 +266,24 @@ function Index({ auth, item, additionalItem }) {
                                 {item.opening_balance}
                             </div>
                             <div className="w-1/2 text-xl">
-                                <h1 className="font-bold">Total Sales</h1>
-                                {item.sales_total}
+                                <h1 className="font-bold">Expenses</h1>
+                                {item.expenses}
                             </div>
                         </div>
 
-                        <div className="pt-5 mt-5 border-t">
+                        <div className="pt-5 flex  gap-5 mt-5 border-t">
+                            
+                        <div className="w-1/2">
                             <h1>Expected Cash Balance</h1>
                             <span className="text-blue-500 text-4xl font-bold">
                                 {item.expected_balance}
                             </span>
+                            </div>
+                            
+                            <div className="w-1/2 text-xl">
+                                <h1 className="font-bold">Total Sales</h1>
+                                {item.sales_total}
+                            </div>
                         </div>
 
                         {item.closing_balance && (

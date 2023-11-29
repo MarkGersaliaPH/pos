@@ -19,7 +19,8 @@ class CashDrawer extends Model
         'expected_balance',
         'notes',
         'opened_at',
-        'closed_at'
+        'closed_at',
+        'expenses',
     ];
     protected $dates = ['opened_at'];
 
@@ -38,7 +39,7 @@ class CashDrawer extends Model
 
     public function getStatusAttribute()
     {
-        return $this->closed_at ? "Finished" : "Active";
+        return $this->closed_at ? "Closed" : "Active";
     }
 
     public function addToCurrentAmount($amount)
@@ -84,7 +85,7 @@ class CashDrawer extends Model
 
     public function cashier()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')->withDefault();
     }
     protected static function booted()
     {

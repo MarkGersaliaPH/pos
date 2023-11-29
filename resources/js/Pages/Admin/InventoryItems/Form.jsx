@@ -16,14 +16,14 @@ import React, { useState } from "react";
 import { FilePond } from "react-filepond";
 import Swal from "sweetalert2";
 
-function Form({ auth, item, additionalItem }) {
+function Form({ auth, item, categories }) {
     const { data, setData, post, processing, errors, reset } = useForm(
         item || {}
     );
 
     let [image, setImage] = useState("");
 
-    const baseUrl = "admin.products.";
+    const baseUrl = "admin.inventories.";
 
     const submit = (e) => {
         e.preventDefault();
@@ -91,7 +91,7 @@ function Form({ auth, item, additionalItem }) {
                                     selectedFile={data.image_url}
                                     setImage={(filename) => setImage(filename)}
                                     label="Drag or Drop Your Photo"
-                                />
+                                /> 
                             </div>
 
                             <div>
@@ -105,7 +105,7 @@ function Form({ auth, item, additionalItem }) {
                                     autoComplete="category_id"
                                     isFocused={true}
                                     onChange={handleChange}
-                                    options={additionalItem}
+                                    options={categories}
                                 />
 
                                 <InputError
@@ -118,7 +118,7 @@ function Form({ auth, item, additionalItem }) {
                                 <Toggle
                                     name="is_active"
                                     onChange={handleChange}
-                                    checked={data.is_active}
+                                    checked={data.is_active || true}
                                 />
                                 ,
                             </div>
@@ -141,15 +141,57 @@ function Form({ auth, item, additionalItem }) {
                                 />
                             </div>
 
-                            <div className="mt-4">
-                                <InputLabel htmlFor="name" value="Price" />
 
-                                <TextInput
-                                    id="price"
-                                    name="price"
-                                    value={data.price}
+                            <div className="mt-4">
+                                <InputLabel htmlFor="name" value="Quantity" />
+
+                                <TextInput 
+                                    id="initial_quantity"
+                                    name="initial_quantity"
+                                    value={data.initial_quantity}
                                     className="mt-1 block w-full"
-                                    autoComplete="price"
+                                    autoComplete="initial_quantity"
+                                    isFocused={true}
+                                    onChange={handleChange}
+                                />
+
+                                <initial_quantity
+                                    message={errors.initial_quantity}
+                                    className="mt-2"
+                                />
+                            </div>
+
+                            <div className="mt-4 flex justify-center gap-5">
+                                <div className="w-full">
+
+                                <InputLabel htmlFor="name" value="Normal Price" />
+
+                                <TextInput 
+                                    id="normal_price"
+                                    name="normal_price"
+                                    value={data.normal_price}
+                                    className="mt-1 block w-full"
+                                    autoComplete="normal_price"
+                                    isFocused={true}
+                                    onChange={handleChange}
+                                />
+
+                                <InputError
+                                    message={errors.normal_price}
+                                    className="mt-2"
+                                />
+                                </div>
+                                
+                                <div className="w-full">
+
+                                <InputLabel htmlFor="name" value="Selling Price" />
+
+                                <TextInput 
+                                    id="selling_price"
+                                    name="selling_price"
+                                    value={data.selling_price}
+                                    className="mt-1 block w-full"
+                                    autoComplete="selling_price"
                                     isFocused={true}
                                     onChange={handleChange}
                                 />
@@ -158,70 +200,12 @@ function Form({ auth, item, additionalItem }) {
                                     message={errors.price}
                                     className="mt-2"
                                 />
+                                </div>
                             </div>
 
-                            <div className="mt-4">
-                                <InputLabel htmlFor="name" value="Quantity" />
+                         
 
-                                <TextInput
-                                    type="number"
-                                    id="stock_quantity"
-                                    name="stock_quantity"
-                                    value={data.stock_quantity}
-                                    className="mt-1 block w-full"
-                                    autoComplete="stock_quantity"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.stock_quantity}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <InputLabel
-                                    htmlFor="name"
-                                    value="Description"
-                                />
-
-                                <TextArea
-                                    id="description"
-                                    name="description"
-                                    value={data.description}
-                                    className="mt-1 block w-full"
-                                    autoComplete="description"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.description}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="mt-4">
-                            <div>
-                                <InputLabel htmlFor="name" value="Inventory Item" />
-
-                                <SelectInput
-                                    id="name"
-                                    name="inventory"
-                                    value={data.category_id}
-                                    className="mt-1 block w-full"
-                                    autoComplete="category_id"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                    options={[{name:"Hot Dog"},{name:"Sausage"}]}
-                                />
-
-                                <InputError
-                                    message={errors.category_id}
-                                    className="mt-2"
-                                />
-                            </div>
-                            </div>
+                             
                             <CardFooter>
                                 <SecondaryButton
                                     href={route(baseUrl + "index")}

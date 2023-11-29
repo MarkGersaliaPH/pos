@@ -28,7 +28,7 @@ class PosController extends Controller
         $data['products'] = Product::when($category_id, function ($query, $category_id) {
             return $query->where('category_id', $category_id);
         })->where('is_active', 1)->get();
-        return Inertia::render('Admi    n/Pos/Index', ['items' => $data]);
+        return Inertia::render('Admin/Pos/Index', ['items' => $data]);
     }
 
     public function store(Request $request)
@@ -60,10 +60,11 @@ class PosController extends Controller
             }
 
             $model->load(['order_items', 'order_items.product', 'payment_method']);
+            $html = view('receipt-html',['data'=>$model])->render();
 
             DB::commit();
 
-            return response()->json(['message' => 'Success', 'receipt_data' => $model]);
+            return response()->json(['message' => 'Success', 'receipt_data' => $model,'html'=>$html]);
         } catch (\Exception $e) {
             dd($e);
             //throw $th;
@@ -125,7 +126,7 @@ class PosController extends Controller
 
     public function generatepdf($id)
     { 
-        $data = Order::with('order_items', 'order_items.product', 'payment_method')->find($id);
+        $data = Order::with('order_items', 'order_items.product', 'payment_method','cashier')->find($id);
         $pdf = Pdf::loadView('receipt', ['data' => $data->toArray()]);
 
 
@@ -134,6 +135,8 @@ class PosController extends Controller
 
         // Render the PDF (stream or save as needed)
         $pdf->render();
+
+        
 
 
         return $pdf->stream('receipt.pdf');

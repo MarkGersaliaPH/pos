@@ -26,9 +26,15 @@ abstract class CrudController extends Controller
     {
 
         $items = $this->model->with($this->withRelation());
-        $items = $items->paginate($this->perPage);
+        $items = $items->paginate($this->perPage);   
         return Inertia::render($this->index, ['items' => $items]);
     }
+
+    protected function defaultOrder($q){
+        return $q;
+    }
+
+    
     protected function defaultFilter(){
         return [];
     }
@@ -66,9 +72,8 @@ abstract class CrudController extends Controller
 
     public function show($id)
     {
-        $item = $this->model->findOrFail($id);
-        $additionalItems = $this->additionalItems();
-        return view($this->show, compact('item'));
+        $item = $this->model->with($this->withRelation())->findOrFail($id);  
+        return Inertia::render($this->show, compact('item'));
     }
 
     public function edit($id)
@@ -84,8 +89,7 @@ abstract class CrudController extends Controller
     {
         try {
             $item = $this->model->findOrFail($id); 
-            $requestData = $request->only($this->model->getFillable());
-        
+            $requestData = $request->only($this->model->getFillable()); 
             if (request()->hasFile('image')) {  
                 $file = $request->file('image');
                 $originalFilename = $file->getClientOriginalName();
