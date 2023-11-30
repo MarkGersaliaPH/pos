@@ -24,23 +24,27 @@ export default function Authenticated({ user, header, children }) {
                       })
         }
     },[flash.message])
+
+
+    let [isMenuOpen,setIsMenuOpen] = useState(false);
+
     return (
         <div className="">
             <div className="absolute w-full bg-blue-500 dark:hidden min-h-75 shadow-sm"></div>
 
-            <Sidebar />
+            <Sidebar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
 
-            <main className="relative h-full max-h-screen transition-all duration-200 ease-in-out xl:ml-68 rounded-xl">
+            <main className={`relative    h-full max-h-screen transition-all duration-200 ease-in-out ${isMenuOpen ? 'sm:ml-[260px]' : 'xl:ml-68'} rounded-xl`}>
                 {/* <!-- Navbar --> */}
                 <nav
                     className="relative flex flex-wrap items-center justify-between px-0 py-2 mx-6 transition-all ease-in shadow-none duration-250 rounded-2xl lg:flex-nowrap lg:justify-start"
                     navbar-main
                     navbar-scroll="false"
                 >
-                    <div className="flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
-                        <nav>
+                    <div className=" flex items-center justify-between w-full px-4 py-1 mx-auto flex-wrap-inherit">
+                    <nav className=" 2xl:flex sm:hidden !important">
                             {/* <!-- breadcrumb --> */}
-                            <ol className="flex flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16">
+                            <ol className="flex  flex-wrap pt-1 mr-12 bg-transparent rounded-lg sm:mr-16    ">
                                 <li className="text-sm leading-normal">
                                     <a
                                         className="text-white opacity-50"
@@ -50,13 +54,13 @@ export default function Authenticated({ user, header, children }) {
                                     </a>
                                 </li>
                                 <li
-                                    className="text-sm pl-2 capitalize leading-normal text-white before:float-left before:pr-2 before:text-white before:content-['/']"
+                                    className="text-sm pl-2  capitalize leading-normal text-white before:float-left before:pr-2 before:text-white before:content-['/'] "
                                     aria-current="page"
                                 >
                                     Dashboard
                                 </li>
                             </ol>
-                            <h6 className="mb-0 font-bold text-white capitalize">
+                            <h6 className="mb-0 font-bold text-white capitalize   ">
                                 Dashboard
                             </h6>
                         </nav>
@@ -106,8 +110,9 @@ export default function Authenticated({ user, header, children }) {
                                 <li className="flex items-center pl-4 xl:hidden">
                                     <a
                                         href="javascript:;"
-                                        className="block p-0 text-sm text-white transition-all ease-nav-brand"
+                                        className="block cursor-pointer p-0 text-sm text-white transition-all ease-nav-brand"
                                         sidenav-trigger
+                                        onClick={()=>setIsMenuOpen(!isMenuOpen)}
                                     >
                                         <div className="w-4.5 overflow-hidden">
                                             <i className="ease mb-0.75 relative block h-0.5 rounded-sm bg-white transition-all"></i>

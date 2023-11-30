@@ -1,5 +1,5 @@
 import NavLink from "@/Components/NavLink";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AiFillDashboard } from "react-icons/ai";
 import { FaList, FaUsers } from "react-icons/fa";
 import {
@@ -14,7 +14,7 @@ import {
     FcSelfServiceKiosk,
 } from "react-icons/fc";
 
-function Sidebar() {
+function Sidebar(props) {
     const menus = [
         {
             name: "Dashboard",
@@ -107,14 +107,15 @@ function Sidebar() {
     const getTheKeyOnRoute = (text) =>{
         return text.replace('admin.','').replace('.index','')
     }
-
+  
     return (
         <div>
             <aside
-                className="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4 overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 shadow-xl dark:bg-slate-800 dark:shadow-none dark:bg-slate-850 max-w-64 ease-nav-brand z-990 xl:ml-6 rounded-2xl xl:left-0 xl:translate-x-0 z-10"
+                className={`${props.isMenuOpen ? 'translate-x-0  max-w-full rounded-none' : "my-4" } fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0  overflow-y-auto antialiased transition-transform duration-200 -translate-x-full bg-white border-0 shadow-xl dark:bg-slate-800 dark:shadow-none dark:bg-slate-850 max-w-64 ease-nav-brand z-990 xl:ml-6 rounded-2xl xl:left-0  xl:translate-x-0 z-10`}
                 aria-expanded="false"
             >
-                <div className="h-19">
+                <div className="h-19 flex items-center justify-between">
+                    <div>
                     <i
                         className="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden"
                         sidenav-close
@@ -132,6 +133,10 @@ function Sidebar() {
                             Where Sales Meet Simplicity
                         </span>
                     </a>
+                    </div>
+                    <div className="pr-5" onClick={()=>props.setIsMenuOpen(false)}>
+                        Close
+                    </div>
                 </div>
 
                 <hr className="h-px mb-3 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent dark:bg-gradient-to-r dark:from-transparent dark:via-white dark:to-transparent" />
@@ -162,11 +167,14 @@ function Sidebar() {
                                         </h6>
                                     </li>
                                 ) : (
-                                    <li className="mt-0.5 w-full" key={key}>
+                                    <li className="mt-0.5 w-full" key={key} 
+
+                                    onClick={()=>props.setIsMenuOpen(false)} >
                                         <NavLink
                                             href={
                                                 menu.route && route(menu.route)
                                             } 
+                                            
                                             active={getTheKeyOnRoute(route().current()) == menu.key}
                                         >
                                             <div className="mr-2 flex items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-1">
@@ -202,6 +210,8 @@ function Sidebar() {
                                         <li
                                             className="mt-0.5 w-full"
                                             key={childKey}
+                                            
+                                            onClick={()=>props.setIsMenuOpen(false)}
                                         >
                                             <NavLink
                                                 href={
