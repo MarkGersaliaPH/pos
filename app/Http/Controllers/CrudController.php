@@ -46,7 +46,7 @@ abstract class CrudController extends Controller
 
     public function create()
     {
-        $additionalItem = $this->additionalItem();
+        $setImage = $this->additionalItem();
         return Inertia::render($this->form, ['additionalItem' => $additionalItem]);
     }
 
@@ -99,6 +99,8 @@ abstract class CrudController extends Controller
 
             }
             $item->update($requestData);
+            
+            return redirect()->route($this->indexUrl);
         } catch (\Exception $e) {
             //throw $th;
             dd($e);

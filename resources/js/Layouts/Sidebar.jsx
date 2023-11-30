@@ -134,7 +134,7 @@ function Sidebar(props) {
                         </span>
                     </a>
                     </div>
-                    <div className="pr-5" onClick={()=>props.setIsMenuOpen(false)}>
+                    <div className="pr-5 lg:hidden" onClick={()=>props.setIsMenuOpen(false)}>
                         Close
                     </div>
                 </div>

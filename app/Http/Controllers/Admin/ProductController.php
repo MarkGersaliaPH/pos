@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CrudController;
 use App\Models\Category;
+use App\Models\InventoryItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProductController extends CrudController
 {
@@ -29,14 +31,19 @@ class ProductController extends CrudController
             'stock_quantity' => 'required',
         ];
     }
-
-    protected function additionalItem()
+ 
+    
+    public function edit($id)
     {
+        $item = $this->model->findOrFail($id);
+ 
         $categories = Category::whereIsActive(1)->get();
 
-        return $categories;
+        // $inventory_items = InventoryItem::whereIsActive(1)->with('category')->get()->groupBy('category.name');
+        $inventory_items = InventoryItem::whereIsActive(1)->with('category')->get();
+      
+        return Inertia::render($this->form, ['item' => $item, 'categories' => $categories,'inventory_items'=>$inventory_items]);
     }
-
 
 
     protected function withRelation()

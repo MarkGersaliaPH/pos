@@ -6,7 +6,9 @@ import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import SelectInput from "@/Components/SelectInput";
+import TabLink from "@/Components/TabLink";
 import Table from "@/Components/Table";
+import Tabs from "@/Components/Tabs";
 import TextArea from "@/Components/TextArea";
 import TextInput from "@/Components/TextInput";
 import Toggle from "@/Components/Toggle";
@@ -15,8 +17,14 @@ import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import React, { useState } from "react";
 import { FilePond } from "react-filepond";
 import Swal from "sweetalert2";
+import Details from "./Details";
+import Dragabble from "@/Components/Draggable";
+import Item from "./Item";
+import DropArea from "./DropArea";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
-function Form({ auth, item, additionalItem }) {
+function Form({ auth, item, categories,inventory_items }) {
     const { data, setData, post, processing, errors, reset } = useForm(
         item || {}
     );
@@ -58,6 +66,79 @@ function Form({ auth, item, additionalItem }) {
         value === "on" ? true : Boolean(value);
     };
 
+    let [selectedItems,setSelectedItems] = useState([]); 
+
+    let [inventoryItems,setInventoryItems] = useState(inventory_items || []);
+
+    const handleDrop = (item) => {
+        // You can add your Axios logic here to add the item to the product
+        // For example:
+        // axios.post('/add-to-product', { productId: productId, itemId: item.id })
+    
+        let updatedInventoryItem = inventoryItems.filter((inventoryItem)=> {return inventoryItem.id != item.id })
+//         const isItemAlreadySelected = selectedItems.some((selectedItem) => selectedItem.id === item.id);
+
+// // If the item is not already selected, add it to the array
+// if (!isItemAlreadySelected) {
+    setSelectedItems((prevItems) => [...prevItems, item]);
+//   }
+
+
+        setInventoryItems(updatedInventoryItem) 
+      };
+
+ 
+
+    const tabs = [
+        {
+            name: "Product Details",
+            isActive: true,
+            href: route("admin.cash-drawer.index", data.id), 
+            content:<Details data={data} submit={submit} errors={errors} handleChange={handleChange} baseUrl={baseUrl} categories={categories} processing={processing} setImage={setImage} />
+        },
+        {
+            name: "Inventory Items",
+            href: route("admin.cash-drawer.sales", data.id),
+            isActive: false,
+            content:
+            
+            <DndProvider backend={HTML5Backend}> 
+            <div className="flex gap-5 align-middle items-start">
+            <div className="bg-gray-100 border p-2   w-1/2">
+            <DropArea className="  flex flex-wrap p-2 gap-2" onDrop={handleDrop}  selectedItems={selectedItems} />
+            </div>
+                <div className=" flex flex-wrap justify-items-center  w-1/2">
+                    {
+                        inventoryItems && inventoryItems.map((item,key)=> 
+                        <Item key={key} item={item} />
+
+                        )
+                    }
+                    {/* {
+                        Object.keys(inventoryItems).length && Object.keys(inventoryItems).map((categoryKey,key)=>
+                            <div className="w-1/2">
+                            <ul>
+                            {categoryKey}
+                            <li>{ 
+                                 inventoryItems[categoryKey].map((item,itemKey)=>
+                                    <Item key={itemKey} item={item} />
+                                
+                                )
+                            }</li>
+                            </ul>
+                            </div>
+                        )
+                    } */}
+                </div>
+            </div>
+            
+            </DndProvider>
+            // <></>
+
+        }, 
+        // ... add as many tabs as you need
+    ];
+
     return (
         <div>
             <Authenticated
@@ -69,175 +150,8 @@ function Form({ auth, item, additionalItem }) {
                 }
             >
                 <Head title="Create" />
-                <Card>
-                    <CardHeader
-                        title={`${!data.id ? "Create" : "Update"} Product`}
-                    />
-                    <CardBody>
-                        <form onSubmit={submit}>
-                            <div className="mt-4 w-1/2">
-                                <InputLabel
-                                    htmlFor="name"
-                                    value="Select Image"
-                                />
-
-                                {/* <FilePond
-                                    files={data.image}
-                                    onupdatefiles={(fileItems) => {
-                                        setImage(fileItems[0].file);
-                                    }}
-                                /> */}
-                                <FileUpload
-                                    selectedFile={data.image_url}
-                                    setImage={(filename) => setImage(filename)}
-                                    label="Drag or Drop Your Photo"
-                                />
-                            </div>
-
-                            <div>
-                                <InputLabel htmlFor="name" value="Category" />
-
-                                <SelectInput
-                                    id="name"
-                                    name="category_id"
-                                    value={data.category_id}
-                                    className="mt-1 block w-full"
-                                    autoComplete="category_id"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                    options={additionalItem}
-                                />
-
-                                <InputError
-                                    message={errors.category_id}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <InputLabel htmlFor="name" value="Is Active" />
-                                <Toggle
-                                    name="is_active"
-                                    onChange={handleChange}
-                                    checked={data.is_active}
-                                />
-                                ,
-                            </div>
-                            <div>
-                                <InputLabel htmlFor="name" value="Name" />
-
-                                <TextInput
-                                    id="name"
-                                    name="name"
-                                    value={data.name}
-                                    className="mt-1 block w-full"
-                                    autoComplete="name"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.name}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="mt-4">
-                                <InputLabel htmlFor="name" value="Price" />
-
-                                <TextInput
-                                    id="price"
-                                    name="price"
-                                    value={data.price}
-                                    className="mt-1 block w-full"
-                                    autoComplete="price"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.price}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="mt-4">
-                                <InputLabel htmlFor="name" value="Quantity" />
-
-                                <TextInput
-                                    type="number"
-                                    id="stock_quantity"
-                                    name="stock_quantity"
-                                    value={data.stock_quantity}
-                                    className="mt-1 block w-full"
-                                    autoComplete="stock_quantity"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.stock_quantity}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div className="mt-4">
-                                <InputLabel
-                                    htmlFor="name"
-                                    value="Description"
-                                />
-
-                                <TextArea
-                                    id="description"
-                                    name="description"
-                                    value={data.description}
-                                    className="mt-1 block w-full"
-                                    autoComplete="description"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                />
-
-                                <InputError
-                                    message={errors.description}
-                                    className="mt-2"
-                                />
-                            </div>
-
-                            <div className="mt-4">
-                            <div>
-                                <InputLabel htmlFor="name" value="Inventory Item" />
-
-                                <SelectInput
-                                    id="name"
-                                    name="inventory"
-                                    value={data.category_id}
-                                    className="mt-1 block w-full"
-                                    autoComplete="category_id"
-                                    isFocused={true}
-                                    onChange={handleChange}
-                                    options={[{name:"Hot Dog"},{name:"Sausage"}]}
-                                />
-
-                                <InputError
-                                    message={errors.category_id}
-                                    className="mt-2"
-                                />
-                            </div>
-                            </div>
-                            <CardFooter>
-                                <SecondaryButton
-                                    href={route(baseUrl + "index")}
-                                >
-                                    Cancel
-                                </SecondaryButton>
-                                <PrimaryButton
-                                    className="ml-4"
-                                    processing={processing}
-                                >
-                                    Save
-                                </PrimaryButton>
-                            </CardFooter>
-                        </form>
-                    </CardBody>
-                </Card>
+                <Tabs tabs={tabs} /> 
+               
             </Authenticated>
         </div>
     );

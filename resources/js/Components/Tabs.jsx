@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Card, { CardBody } from './Card';
 
-export default function Tabs({ tabs }) {
+export default function Tabs({ tabs,children }) {
     const [activeTab, setActiveTab] = useState(tabs[0].name);
-
+ 
     return (
         <div className="w-full">
             <ul className="flex mb-0 list-none flex-wrap pt-3  flex-row">
