@@ -5,7 +5,8 @@ import { useDrop } from "react-dnd";
 function DropArea({ onDrop, selectedItems,...props }) {
     const [, drop] = useDrop({
         accept: "ITEM",
-        drop: (item) => onDrop(item),
+        drop: (item) => 
+        onDrop(item),
     });
 
     return (
@@ -16,10 +17,9 @@ function DropArea({ onDrop, selectedItems,...props }) {
         > 
             {selectedItems &&
                 selectedItems.map((item, key) => (
-                    <Card>
+                    <Card className="mb-2">
                     <CardBody>
-                    {item.name}
-            
+                    {item.name} 
                     </CardBody>
                   </Card>
                 ))}

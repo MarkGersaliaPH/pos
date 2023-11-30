@@ -75,6 +75,7 @@ function Form({ auth, item, categories,inventory_items }) {
         // For example:
         // axios.post('/add-to-product', { productId: productId, itemId: item.id })
     
+        
         let updatedInventoryItem = inventoryItems.filter((inventoryItem)=> {return inventoryItem.id != item.id })
 //         const isItemAlreadySelected = selectedItems.some((selectedItem) => selectedItem.id === item.id);
 
@@ -104,16 +105,19 @@ function Form({ auth, item, categories,inventory_items }) {
             
             <DndProvider backend={HTML5Backend}> 
             <div className="flex gap-5 align-middle items-start">
-            <div className="bg-gray-100 border p-2   w-1/2">
-            <DropArea className="  flex flex-wrap p-2 gap-2" onDrop={handleDrop}  selectedItems={selectedItems} />
+            <div className="w-1/2  relative">
+                Drop Items Here
+            <DropArea className="  h-[500px] overflow-auto bg-gray-100 border p-2   " onDrop={handleDrop}  selectedItems={selectedItems} />
             </div>
-                <div className=" flex flex-wrap justify-items-center  w-1/2">
+                <div className="  w-1/2 overflow-auto h-[500px]">
+            Drag Items Here
+                    <div className="flex flex-wrap justify-items-center ">
                     {
                         inventoryItems && inventoryItems.map((item,key)=> 
                         <Item key={key} item={item} />
 
                         )
-                    }
+                    }</div>
                     {/* {
                         Object.keys(inventoryItems).length && Object.keys(inventoryItems).map((categoryKey,key)=>
                             <div className="w-1/2">

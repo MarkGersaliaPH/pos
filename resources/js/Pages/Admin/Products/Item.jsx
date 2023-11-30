@@ -9,7 +9,7 @@ export default function Item ({ item }){
 
   return (
     <div ref={drag} className='cursor-move '  >
-      <div className="mb-2 border p-2 m-2 bg-slate-50">   {item.name}<br></br>
+      <div className="mb-2 border p-2 m-2 bg-slate-50 flex-shrink-0">   {item.name}<br></br>
         Original Price: {item.normal_price}<br></br>
         Selling Price: {item.selling_price} 
       </div>
