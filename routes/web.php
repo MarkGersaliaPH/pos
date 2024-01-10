@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
+        Route::post('products/attached_inventory/{product_id}',[ProductController::class,'attachedInventoryItem'])->name('products.attached.inventory_items');
         Route::resource('products', ProductController::class);
         Route::resource('categories', CategoryController::class);
         

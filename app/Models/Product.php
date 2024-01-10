@@ -22,6 +22,7 @@ class Product extends Model implements HasMedia
         'barcode', // Barcode or UPC code
         'is_active', // If the product is active and available for sale 
         'category_id',
+        'attached_inventory_items'
     ];
 
     protected $casts = [
@@ -36,5 +37,9 @@ class Product extends Model implements HasMedia
     public function order_items()
     {
         return $this->hasMany(OrderItem::class);
+    } 
+
+    public function getAttachedInventoryItemsToArray(){
+        return $this->attached_inventory_items ? json_decode($this->attached_inventory_items) :  [];
     }
 }

@@ -31,6 +31,25 @@ class ProductController extends CrudController
             'stock_quantity' => 'required',
         ];
     }
+
+    public function attachedInventoryItem(Request $request){
+        $product = $this->model->find($request->product_id); 
+        if($product->attached_inventory_items){
+            dd(json_decode($product->attached_inventory_items));
+        }
+        $product->attached_inventory_items = json_encode($request->all()); 
+        $product->update();
+    }
+
+    
+    public function create()
+    {
+        
+ 
+        $categories = Category::whereIsActive(1)->get();
+        return Inertia::render($this->form,['categories'=>$categories]);
+    }
+
  
     
     public function edit($id)

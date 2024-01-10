@@ -23,8 +23,11 @@ import Item from "./Item";
 import DropArea from "./DropArea";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import AttachedInventory from "./AttachedInventory";
+import InventoryItems from "./InventoryItems";
+import axios from "axios";
 
-function Form({ auth, item, categories,inventory_items }) {
+function Form({ auth, item, categories, inventory_items }) {
     const { data, setData, post, processing, errors, reset } = useForm(
         item || {}
     );
@@ -41,8 +44,22 @@ function Form({ auth, item, categories,inventory_items }) {
             data.image = image;
             post(route(baseUrl + "update", data.id), {
                 onSuccess: () => {
-                    Swal.fire("Good job!", "Data is updated!", "success")
-                    
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        },
+                    });
+                    Toast.fire({
+                        icon: "success",
+                        title: "Signed in successfully",
+                    });
+                    // Swal.fire("Good job!", "Data is updated!", "success");
                 },
             });
         } else {
@@ -66,83 +83,126 @@ function Form({ auth, item, categories,inventory_items }) {
         value === "on" ? true : Boolean(value);
     };
 
-    let [selectedItems,setSelectedItems] = useState([]); 
+    let [selectedItems, setSelectedItems] = useState([]);
 
-    let [inventoryItems,setInventoryItems] = useState(inventory_items || []);
+    let [inventoryItems, setInventoryItems] = useState(inventory_items || []);
 
     const handleDrop = (item) => {
         // You can add your Axios logic here to add the item to the product
         // For example:
         // axios.post('/add-to-product', { productId: productId, itemId: item.id })
-    
+
+        let updatedInventoryItem = inventoryItems.filter((inventoryItem) => {
+            return inventoryItem.id != item.id;
+        });
+        //         const isItemAlreadySelected = selectedItems.some((selectedItem) => selectedItem.id === item.id);
+
+        // // If the item is not already selected, add it to the array
+        // if (!isItemAlreadySelected) {
+        setSelectedItems((prevItems) => [...prevItems, item]);
+        //   }
+
+        setInventoryItems(updatedInventoryItem);
+    };
+
+    let [attachedInventoryItems, setAttachedInventoryItems] = useState([]);
+
+    const onAttachedInventoryItems = (item) => {
+        setAttachedInventoryItems([...attachedInventoryItems,item])
+
+        const options = {
+            url: route('admin.products.attached.inventory_items', data.id),
+            method: 'POST', 
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json;charset=UTF-8',
+              'X-CSRF-TOKEN': csrf_token,
+
+            },
+            data:item
+          };
+
+          axios(options)
+  .then(response => {
+    console.log(response.status);
+  }); 
         
-        let updatedInventoryItem = inventoryItems.filter((inventoryItem)=> {return inventoryItem.id != item.id })
-//         const isItemAlreadySelected = selectedItems.some((selectedItem) => selectedItem.id === item.id);
+    };
 
-// // If the item is not already selected, add it to the array
-// if (!isItemAlreadySelected) {
-    setSelectedItems((prevItems) => [...prevItems, item]);
-//   }
+    const tabs = data.id
+        ? [
+              {
+                  name: "Product Details",
+                  isActive: true,
+                  href: route("admin.cash-drawer.index", data.id),
+                  content: (
+                      <Details
+                          data={data}
+                          submit={submit}
+                          errors={errors}
+                          handleChange={handleChange}
+                          baseUrl={baseUrl}
+                          categories={categories}
+                          processing={processing}
+                          setImage={setImage}
+                      />
+                  ),
+              },  {
+                  name: "Inventory Items",
+                  href: route("admin.cash-drawer.sales", data.id),
+                  isActive: false,
+                  content: (
+                      <InventoryItems
+                          onAttachedInventoryItems={onAttachedInventoryItems}
+                          items={attachedInventoryItems}
+                          itemOptions={inventoryItems}
+                      />
+                  ),
+                  // <DndProvider backend={HTML5Backend}>
+                  //     <div className="flex gap-5 align-middle items-start">
+                  //         <div className="w-1/2  relative">
+                  //             Drop Items Here
+                  //             <DropArea
+                  //                 className="  h-[500px] overflow-auto bg-gray-100 border p-2   "
+                  //                 onDrop={handleDrop}
+                  //                 selectedItems={selectedItems}
+                  //             />
+                  //         </div>
+                  //         <div className="  w-1/2 overflow-auto h-[500px]">
+                  //             Drag Items Here
+                  //             <div className="flex flex-wrap justify-items-center ">
+                  //                 {inventoryItems &&
+                  //                     inventoryItems.map((item, key) => (
+                  //                         <Item key={key} item={item} />
+                  //                     ))}
+                  //             </div>
+                  //         </div>
+                  //     </div>
+                  // </DndProvider>
+                  // <></>
+              },
 
-
-        setInventoryItems(updatedInventoryItem) 
-      };
-
- 
-
-    const tabs = [
-        {
-            name: "Product Details",
-            isActive: true,
-            href: route("admin.cash-drawer.index", data.id), 
-            content:<Details data={data} submit={submit} errors={errors} handleChange={handleChange} baseUrl={baseUrl} categories={categories} processing={processing} setImage={setImage} />
-        },
-        {
-            name: "Inventory Items",
-            href: route("admin.cash-drawer.sales", data.id),
-            isActive: false,
-            content:
-            
-            <DndProvider backend={HTML5Backend}> 
-            <div className="flex gap-5 align-middle items-start">
-            <div className="w-1/2  relative">
-                Drop Items Here
-            <DropArea className="  h-[500px] overflow-auto bg-gray-100 border p-2   " onDrop={handleDrop}  selectedItems={selectedItems} />
-            </div>
-                <div className="  w-1/2 overflow-auto h-[500px]">
-            Drag Items Here
-                    <div className="flex flex-wrap justify-items-center ">
-                    {
-                        inventoryItems && inventoryItems.map((item,key)=> 
-                        <Item key={key} item={item} />
-
-                        )
-                    }</div>
-                    {/* {
-                        Object.keys(inventoryItems).length && Object.keys(inventoryItems).map((categoryKey,key)=>
-                            <div className="w-1/2">
-                            <ul>
-                            {categoryKey}
-                            <li>{ 
-                                 inventoryItems[categoryKey].map((item,itemKey)=>
-                                    <Item key={itemKey} item={item} />
-                                
-                                )
-                            }</li>
-                            </ul>
-                            </div>
-                        )
-                    } */}
-                </div>
-            </div>
-            
-            </DndProvider>
-            // <></>
-
-        }, 
-        // ... add as many tabs as you need
-    ];
-
+              // ... add as many tabs as you need
+          ]
+        : [
+              {
+                  name: "Product Details",
+                  isActive: true,
+                  href: route("admin.cash-drawer.index", data.id),
+                  content: (
+                      <Details
+                          data={data}
+                          submit={submit}
+                          errors={errors}
+                          handleChange={handleChange}
+                          baseUrl={baseUrl}
+                          categories={categories}
+                          processing={processing}
+                          setImage={setImage}
+                      />
+                  ),
+              },
+          ];
     return (
         <div>
             <Authenticated
@@ -154,8 +214,7 @@ function Form({ auth, item, categories,inventory_items }) {
                 }
             >
                 <Head title="Create" />
-                <Tabs tabs={tabs} /> 
-               
+                <Tabs tabs={tabs} />
             </Authenticated>
         </div>
     );

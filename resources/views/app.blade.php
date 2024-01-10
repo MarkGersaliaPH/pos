@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+    <meta name="csrf-token" value="{{ csrf_token() }}">
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
@@ -24,6 +26,8 @@
     @inertia
     <script>
         window.app_name = "{{env('APP_NAME')}}"
+        window.csrf_token = document.head.querySelector('meta[name="csrf-token"]').content;;
+ 
     </script>
 </body>
 
